@@ -4,9 +4,12 @@ import logging
 import time
 import httpx
 import grpc
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
+
+load_dotenv()
 
 # Ensure proto import path is available
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "proto", "mongo_service"))
@@ -18,6 +21,21 @@ except ImportError:
     from proto.mongo_service import mongodb_service_pb2_grpc as mongo_pb_grpc
 
 from guardrails import RecoveryGuardrails
+
+# Initialize Strands AI Agent for Recovery Strategy
+try:
+    from strands import Agent
+    from strands.models.openai import OpenAIModel
+    bedrock_key = os.getenv("OPENAI_API_KEY", "")
+    base_url = os.getenv("OPENAI_BASE_URL", "https://bedrock-mantle.ap-south-1.api.aws/v1")
+    llm_model = OpenAIModel(
+        model_id="mistral.ministral-3-8b-instruct",
+        client_args={"base_url": base_url, "api_key": bedrock_key}
+    )
+    strategy_agent = Agent(model=llm_model)
+except Exception as e:
+    logging.warning(f"Could not initialize Strands Agent in recovery_orchestrator: {e}")
+    strategy_agent = None
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -77,6 +95,20 @@ def process_workflow(payment_id: str, current_retries: int, amount_paise: int, a
             "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ")
         }
     else:
+        # AI Agent strategy selection for explanation
+        ai_explanation = ""
+        if strategy_agent:
+            try:
+                prompt = (
+                    f"Recommend recovery strategy for failed payment '{payment_id}' of amount ₹{amount_paise/100:.2f}. "
+                    f"Attempt count: {current_retries + 1}. "
+                    f"Explain why generating a live Razorpay Payment Link with auto reminders is optimal."
+                )
+                response = strategy_agent(prompt)
+                ai_explanation = f" | Strands AI Strategy Agent (mistral.ministral-3-8b-instruct): {str(response)[:180]}..."
+            except Exception as err:
+                logging.warning(f"Strategy agent execution error: {err}")
+
         # Create real Razorpay payment link for recovery
         link_res = create_real_razorpay_payment_link(amount_paise, f"Recovery for failed payment {payment_id}")
         short_url = link_res.get("short_url", "https://rzp.io/rzp/wm4Z0y4b")
@@ -90,7 +122,7 @@ def process_workflow(payment_id: str, current_retries: int, amount_paise: int, a
             "action": "ACTION_CREATE_PAYMENT_LINK",
             "payment_link_id": link_id,
             "short_url": short_url,
-            "reason": f"Guardrails passed. Generated live Razorpay Payment Link: {short_url}",
+            "reason": f"Guardrails passed. Generated live Razorpay Payment Link: {short_url}{ai_explanation}",
             "guardrails_checked": ["RETRIES_UNDER_LIMIT", "CONTACT_WINDOW_ALLOWED", "RECOVERY_COST_CAP_OK"],
             "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ")
         }
@@ -131,7 +163,12 @@ class WorkflowRequest(BaseModel):
 
 @app.get("/healthz")
 def healthz():
-    return {"status": "ok", "service": "recovery-orchestrator", "razorpay_configured": bool(RAZORPAY_KEY_ID)}
+    return {
+        "status": "ok",
+        "service": "recovery-orchestrator",
+        "razorpay_configured": bool(RAZORPAY_KEY_ID),
+        "ai_model": "mistral.ministral-3-8b-instruct" if strategy_agent else "disabled"
+    }
 
 @app.post("/orchestrate")
 def orchestrate_endpoint(req: WorkflowRequest):

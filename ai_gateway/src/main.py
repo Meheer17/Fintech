@@ -207,7 +207,7 @@ def get_guardrail_config() -> str:
 # ---------------------------------------------------------
 
 bedrock_key = os.getenv("OPENAI_API_KEY", "")
-base_url = os.getenv("OPENAI_BASE_URL", "https://bedrock-mantle.us-east-1.api.aws/v1")
+base_url = os.getenv("OPENAI_BASE_URL", "https://bedrock-mantle.ap-south-1.api.aws/v1")
 
 model = OpenAIModel(
     model_id="mistral.ministral-3-8b-instruct",

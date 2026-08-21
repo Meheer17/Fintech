@@ -2,10 +2,13 @@ import os
 import sys
 import logging
 import grpc
+from dotenv import load_dotenv
 from matcher import match_record
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
+
+load_dotenv()
 
 # Ensure proto import path is available
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "proto", "mongo_service"))
@@ -15,6 +18,21 @@ try:
 except ImportError:
     from proto.mongo_service import mongodb_service_pb2 as mongo_pb
     from proto.mongo_service import mongodb_service_pb2_grpc as mongo_pb_grpc
+
+# Initialize Strands AI Agent for Reconciliation
+try:
+    from strands import Agent
+    from strands.models.openai import OpenAIModel
+    bedrock_key = os.getenv("OPENAI_API_KEY", "")
+    base_url = os.getenv("OPENAI_BASE_URL", "https://bedrock-mantle.ap-south-1.api.aws/v1")
+    llm_model = OpenAIModel(
+        model_id="mistral.ministral-3-8b-instruct",
+        client_args={"base_url": base_url, "api_key": bedrock_key}
+    )
+    recon_agent = Agent(model=llm_model)
+except Exception as e:
+    logging.warning(f"Could not initialize Strands Agent in reconciliation_engine: {e}")
+    recon_agent = None
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -61,10 +79,18 @@ def run_batch_reconciliation(batch: list = None) -> dict:
 
     total = len(batch)
     if total == 0:
-        total = 100
-        exact, fuzzy, ai, unmatched = 84, 10, 4, 2
+        return {
+            "total_records": 0,
+            "exact_matches": 0,
+            "fuzzy_matches": 0,
+            "ai_matches": 0,
+            "unmatched": 0,
+            "match_rate": 0.0,
+            "status": "BATCH_COMPLETED",
+            "results": []
+        }
 
-    match_rate = (exact + fuzzy + ai) / total if total > 0 else 1.0
+    match_rate = (exact + fuzzy + ai) / total if total > 0 else 0.0
 
     return {
         "total_records": total,
@@ -84,7 +110,11 @@ class BatchReconciliationRequest(BaseModel):
 
 @app.get("/healthz")
 def healthz():
-    return {"status": "ok", "service": "reconciliation-engine"}
+    return {
+        "status": "ok",
+        "service": "reconciliation-engine",
+        "ai_model": "mistral.ministral-3-8b-instruct" if recon_agent else "disabled"
+    }
 
 @app.post("/reconcile")
 def reconcile_endpoint(req: BatchReconciliationRequest):
