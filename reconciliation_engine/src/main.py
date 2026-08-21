@@ -1,35 +1,47 @@
 import os
+import sys
 import logging
-from pymongo import MongoClient
+import grpc
 from matcher import match_record
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
 
+# Ensure proto import path is available
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "proto", "mongo_service"))
+try:
+    import mongodb_service_pb2 as mongo_pb
+    import mongodb_service_pb2_grpc as mongo_pb_grpc
+except ImportError:
+    from proto.mongo_service import mongodb_service_pb2 as mongo_pb
+    from proto.mongo_service import mongodb_service_pb2_grpc as mongo_pb_grpc
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
-if "mongodb:" not in MONGO_URI and "localhost" in MONGO_URI:
-    MONGO_URI = "mongodb://localhost:27017"
+MONGO_SERVICE_ADDR = os.getenv("MONGO_SERVICE_ADDR", "localhost:50010")
 
 def run_batch_reconciliation(batch: list = None) -> dict:
     if not batch:
         batch = []
         try:
-            client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
-            db = client["revenueiq_db"]
-            orders = list(db.orders.find())
-            payments = list(db.payments.find())
-            settlements = list(db.settlements.find())
-            client.close()
+            addr = MONGO_SERVICE_ADDR
+            if ":" not in addr:
+                addr = f"{addr}:50010"
+            with grpc.insecure_channel(addr) as channel:
+                order_stub = mongo_pb_grpc.OrderMongoServiceStub(channel)
+                orders_resp = order_stub.ListOrders(mongo_pb.ListMongoOrdersRequest(limit=100), timeout=3.0)
+                orders = [{"order_id": o.order_id, "total_amount": o.total_amount, "status": o.status} for o in orders_resp.orders]
 
-            # Pair up orders, payments, settlements by ID or index
-            for idx, order in enumerate(orders):
-                payment = payments[idx] if idx < len(payments) else {}
-                settlement = settlements[idx] if idx < len(settlements) else {}
-                batch.append({"order": order, "payment": payment, "settlement": settlement})
+                payment_stub = mongo_pb_grpc.PaymentMongoServiceStub(channel)
+                tx_resp = payment_stub.ListUserTransactions(mongo_pb.ListUserTxRequest(limit=100), timeout=3.0)
+                payments = [{"transaction_id": t.transaction_id, "amount": t.amount, "status": t.status} for t in tx_resp.transactions]
+
+                for idx, order in enumerate(orders):
+                    payment = payments[idx] if idx < len(payments) else {}
+                    settlement = {}
+                    batch.append({"order": order, "payment": payment, "settlement": settlement})
         except Exception as e:
-            logging.warning(f"Could not load records from Mongo for recon batch: {e}")
+            logging.warning(f"Could not load records via MongoService gRPC for recon batch: {e}")
 
     exact, fuzzy, ai, unmatched = 0, 0, 0, 0
     results = []

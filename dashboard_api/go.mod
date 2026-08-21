@@ -5,8 +5,9 @@ go 1.26.4
 replace github.com/RevenueIQ/revenueiq_dev_kit => ../revenueiq_dev_kit
 
 require (
+	github.com/RevenueIQ/revenueiq_dev_kit v0.0.0
 	github.com/gin-gonic/gin v1.12.0
-	go.mongodb.org/mongo-driver/v2 v2.5.0
+	google.golang.org/grpc v1.62.0
 )
 
 require (

@@ -67,6 +67,12 @@ service AnalyticsMongoService {
   rpc ListFailureEvents (ListFailureEventsRequest) returns (ListFailureEventsResponse);
 }
 
+service WorkflowMongoService {
+  rpc SaveWorkflow (SaveWorkflowRequest) returns (MongoWorkflowResponse);
+  rpc ListWorkflows (ListWorkflowsRequest) returns (ListWorkflowsResponse);
+}
+
+
 
 
 
@@ -594,6 +600,41 @@ message ListFailureEventsResponse {
   repeated MongoFailureEventData events = 1;
   int32 total_count = 2;
 }
+
+// Workflow Messages
+message MongoWorkflowData {
+  string workflow_id = 1;
+  string payment_id = 2;
+  double amount_paise = 3;
+  string status = 4;
+  string action = 5;
+  string payment_link_id = 6;
+  string short_url = 7;
+  string reason = 8;
+  repeated string guardrails_checked = 9;
+  int64 created_at = 10;
+}
+
+message SaveWorkflowRequest {
+  MongoWorkflowData workflow = 1;
+}
+
+message ListWorkflowsRequest {
+  string status = 1;
+  int32 limit = 2;
+}
+
+message ListWorkflowsResponse {
+  repeated MongoWorkflowData workflows = 1;
+  int32 total_count = 2;
+}
+
+message MongoWorkflowResponse {
+  bool success = 1;
+  string message = 2;
+  MongoWorkflowData workflow = 3;
+}
+
 
 
 

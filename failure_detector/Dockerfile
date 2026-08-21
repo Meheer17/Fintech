@@ -28,7 +28,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY failure_detector/pyproject.toml .
 RUN pip install --upgrade pip hatchling && \
-    pip install --no-cache-dir fastapi uvicorn grpcio grpcio-tools protobuf confluent-kafka pydantic
+    pip install --no-cache-dir fastapi uvicorn grpcio grpcio-tools protobuf confluent-kafka pydantic httpx
 
 # =========================
 # STAGE 3: DEV
@@ -42,6 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+COPY revenueiq_dev_kit/proto/mongo_service/proto/mongo_service ./src/proto/mongo_service
 COPY failure_detector/src ./src
 COPY failure_detector/pyproject.toml .
 

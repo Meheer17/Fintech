@@ -1962,3 +1962,143 @@ var AnalyticsMongoService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/mongo_service/mongodb_service.proto",
 }
+
+const (
+	WorkflowMongoService_SaveWorkflow_FullMethodName  = "/mongodb_service.WorkflowMongoService/SaveWorkflow"
+	WorkflowMongoService_ListWorkflows_FullMethodName = "/mongodb_service.WorkflowMongoService/ListWorkflows"
+)
+
+// WorkflowMongoServiceClient is the client API for WorkflowMongoService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type WorkflowMongoServiceClient interface {
+	SaveWorkflow(ctx context.Context, in *SaveWorkflowRequest, opts ...grpc.CallOption) (*MongoWorkflowResponse, error)
+	ListWorkflows(ctx context.Context, in *ListWorkflowsRequest, opts ...grpc.CallOption) (*ListWorkflowsResponse, error)
+}
+
+type workflowMongoServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewWorkflowMongoServiceClient(cc grpc.ClientConnInterface) WorkflowMongoServiceClient {
+	return &workflowMongoServiceClient{cc}
+}
+
+func (c *workflowMongoServiceClient) SaveWorkflow(ctx context.Context, in *SaveWorkflowRequest, opts ...grpc.CallOption) (*MongoWorkflowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MongoWorkflowResponse)
+	err := c.cc.Invoke(ctx, WorkflowMongoService_SaveWorkflow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *workflowMongoServiceClient) ListWorkflows(ctx context.Context, in *ListWorkflowsRequest, opts ...grpc.CallOption) (*ListWorkflowsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWorkflowsResponse)
+	err := c.cc.Invoke(ctx, WorkflowMongoService_ListWorkflows_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// WorkflowMongoServiceServer is the server API for WorkflowMongoService service.
+// All implementations must embed UnimplementedWorkflowMongoServiceServer
+// for forward compatibility.
+type WorkflowMongoServiceServer interface {
+	SaveWorkflow(context.Context, *SaveWorkflowRequest) (*MongoWorkflowResponse, error)
+	ListWorkflows(context.Context, *ListWorkflowsRequest) (*ListWorkflowsResponse, error)
+	mustEmbedUnimplementedWorkflowMongoServiceServer()
+}
+
+// UnimplementedWorkflowMongoServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedWorkflowMongoServiceServer struct{}
+
+func (UnimplementedWorkflowMongoServiceServer) SaveWorkflow(context.Context, *SaveWorkflowRequest) (*MongoWorkflowResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveWorkflow not implemented")
+}
+func (UnimplementedWorkflowMongoServiceServer) ListWorkflows(context.Context, *ListWorkflowsRequest) (*ListWorkflowsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListWorkflows not implemented")
+}
+func (UnimplementedWorkflowMongoServiceServer) mustEmbedUnimplementedWorkflowMongoServiceServer() {}
+func (UnimplementedWorkflowMongoServiceServer) testEmbeddedByValue()                              {}
+
+// UnsafeWorkflowMongoServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to WorkflowMongoServiceServer will
+// result in compilation errors.
+type UnsafeWorkflowMongoServiceServer interface {
+	mustEmbedUnimplementedWorkflowMongoServiceServer()
+}
+
+func RegisterWorkflowMongoServiceServer(s grpc.ServiceRegistrar, srv WorkflowMongoServiceServer) {
+	// If the following call panics, it indicates UnimplementedWorkflowMongoServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&WorkflowMongoService_ServiceDesc, srv)
+}
+
+func _WorkflowMongoService_SaveWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveWorkflowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkflowMongoServiceServer).SaveWorkflow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WorkflowMongoService_SaveWorkflow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkflowMongoServiceServer).SaveWorkflow(ctx, req.(*SaveWorkflowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WorkflowMongoService_ListWorkflows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWorkflowsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkflowMongoServiceServer).ListWorkflows(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WorkflowMongoService_ListWorkflows_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkflowMongoServiceServer).ListWorkflows(ctx, req.(*ListWorkflowsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// WorkflowMongoService_ServiceDesc is the grpc.ServiceDesc for WorkflowMongoService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var WorkflowMongoService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "mongodb_service.WorkflowMongoService",
+	HandlerType: (*WorkflowMongoServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SaveWorkflow",
+			Handler:    _WorkflowMongoService_SaveWorkflow_Handler,
+		},
+		{
+			MethodName: "ListWorkflows",
+			Handler:    _WorkflowMongoService_ListWorkflows_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/mongo_service/mongodb_service.proto",
+}

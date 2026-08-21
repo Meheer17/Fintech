@@ -27,7 +27,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY ai_gateway/pyproject.toml .
 RUN pip install --upgrade pip hatchling && \
-    pip install --no-cache-dir fastapi uvicorn grpcio protobuf pydantic
+    pip install --no-cache-dir fastapi uvicorn grpcio protobuf pydantic httpx python-dotenv
 
 # =========================
 # STAGE 3: DEV
@@ -37,6 +37,7 @@ FROM base AS dev
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+COPY revenueiq_dev_kit/proto/mongo_service/proto/mongo_service ./src/proto/mongo_service
 COPY ai_gateway/src ./src
 COPY ai_gateway/pyproject.toml .
 

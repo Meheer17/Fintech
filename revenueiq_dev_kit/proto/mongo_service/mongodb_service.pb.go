@@ -5094,6 +5094,331 @@ func (x *ListFailureEventsResponse) GetTotalCount() int32 {
 	return 0
 }
 
+// Workflow Messages
+type MongoWorkflowData struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	WorkflowId        string                 `protobuf:"bytes,1,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	PaymentId         string                 `protobuf:"bytes,2,opt,name=payment_id,json=paymentId,proto3" json:"payment_id,omitempty"`
+	AmountPaise       float64                `protobuf:"fixed64,3,opt,name=amount_paise,json=amountPaise,proto3" json:"amount_paise,omitempty"`
+	Status            string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Action            string                 `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	PaymentLinkId     string                 `protobuf:"bytes,6,opt,name=payment_link_id,json=paymentLinkId,proto3" json:"payment_link_id,omitempty"`
+	ShortUrl          string                 `protobuf:"bytes,7,opt,name=short_url,json=shortUrl,proto3" json:"short_url,omitempty"`
+	Reason            string                 `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+	GuardrailsChecked []string               `protobuf:"bytes,9,rep,name=guardrails_checked,json=guardrailsChecked,proto3" json:"guardrails_checked,omitempty"`
+	CreatedAt         int64                  `protobuf:"varint,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *MongoWorkflowData) Reset() {
+	*x = MongoWorkflowData{}
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[78]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MongoWorkflowData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MongoWorkflowData) ProtoMessage() {}
+
+func (x *MongoWorkflowData) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[78]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MongoWorkflowData.ProtoReflect.Descriptor instead.
+func (*MongoWorkflowData) Descriptor() ([]byte, []int) {
+	return file_proto_mongo_service_mongodb_service_proto_rawDescGZIP(), []int{78}
+}
+
+func (x *MongoWorkflowData) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetPaymentId() string {
+	if x != nil {
+		return x.PaymentId
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetAmountPaise() float64 {
+	if x != nil {
+		return x.AmountPaise
+	}
+	return 0
+}
+
+func (x *MongoWorkflowData) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetPaymentLinkId() string {
+	if x != nil {
+		return x.PaymentLinkId
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetShortUrl() string {
+	if x != nil {
+		return x.ShortUrl
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *MongoWorkflowData) GetGuardrailsChecked() []string {
+	if x != nil {
+		return x.GuardrailsChecked
+	}
+	return nil
+}
+
+func (x *MongoWorkflowData) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+type SaveWorkflowRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Workflow      *MongoWorkflowData     `protobuf:"bytes,1,opt,name=workflow,proto3" json:"workflow,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveWorkflowRequest) Reset() {
+	*x = SaveWorkflowRequest{}
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[79]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveWorkflowRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveWorkflowRequest) ProtoMessage() {}
+
+func (x *SaveWorkflowRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[79]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveWorkflowRequest.ProtoReflect.Descriptor instead.
+func (*SaveWorkflowRequest) Descriptor() ([]byte, []int) {
+	return file_proto_mongo_service_mongodb_service_proto_rawDescGZIP(), []int{79}
+}
+
+func (x *SaveWorkflowRequest) GetWorkflow() *MongoWorkflowData {
+	if x != nil {
+		return x.Workflow
+	}
+	return nil
+}
+
+type ListWorkflowsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkflowsRequest) Reset() {
+	*x = ListWorkflowsRequest{}
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[80]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkflowsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkflowsRequest) ProtoMessage() {}
+
+func (x *ListWorkflowsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[80]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkflowsRequest.ProtoReflect.Descriptor instead.
+func (*ListWorkflowsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_mongo_service_mongodb_service_proto_rawDescGZIP(), []int{80}
+}
+
+func (x *ListWorkflowsRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListWorkflowsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type ListWorkflowsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Workflows     []*MongoWorkflowData   `protobuf:"bytes,1,rep,name=workflows,proto3" json:"workflows,omitempty"`
+	TotalCount    int32                  `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkflowsResponse) Reset() {
+	*x = ListWorkflowsResponse{}
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[81]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkflowsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkflowsResponse) ProtoMessage() {}
+
+func (x *ListWorkflowsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[81]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkflowsResponse.ProtoReflect.Descriptor instead.
+func (*ListWorkflowsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_mongo_service_mongodb_service_proto_rawDescGZIP(), []int{81}
+}
+
+func (x *ListWorkflowsResponse) GetWorkflows() []*MongoWorkflowData {
+	if x != nil {
+		return x.Workflows
+	}
+	return nil
+}
+
+func (x *ListWorkflowsResponse) GetTotalCount() int32 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
+type MongoWorkflowResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Workflow      *MongoWorkflowData     `protobuf:"bytes,3,opt,name=workflow,proto3" json:"workflow,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MongoWorkflowResponse) Reset() {
+	*x = MongoWorkflowResponse{}
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[82]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MongoWorkflowResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MongoWorkflowResponse) ProtoMessage() {}
+
+func (x *MongoWorkflowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_mongo_service_mongodb_service_proto_msgTypes[82]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MongoWorkflowResponse.ProtoReflect.Descriptor instead.
+func (*MongoWorkflowResponse) Descriptor() ([]byte, []int) {
+	return file_proto_mongo_service_mongodb_service_proto_rawDescGZIP(), []int{82}
+}
+
+func (x *MongoWorkflowResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *MongoWorkflowResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *MongoWorkflowResponse) GetWorkflow() *MongoWorkflowData {
+	if x != nil {
+		return x.Workflow
+	}
+	return nil
+}
+
 var File_proto_mongo_service_mongodb_service_proto protoreflect.FileDescriptor
 
 const file_proto_mongo_service_mongodb_service_proto_rawDesc = "" +
@@ -5523,7 +5848,35 @@ const file_proto_mongo_service_mongodb_service_proto_rawDesc = "" +
 	"\x19ListFailureEventsResponse\x12>\n" +
 	"\x06events\x18\x01 \x03(\v2&.mongodb_service.MongoFailureEventDataR\x06events\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount2\x9a\x04\n" +
+	"totalCount\"\xd1\x02\n" +
+	"\x11MongoWorkflowData\x12\x1f\n" +
+	"\vworkflow_id\x18\x01 \x01(\tR\n" +
+	"workflowId\x12\x1d\n" +
+	"\n" +
+	"payment_id\x18\x02 \x01(\tR\tpaymentId\x12!\n" +
+	"\famount_paise\x18\x03 \x01(\x01R\vamountPaise\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x16\n" +
+	"\x06action\x18\x05 \x01(\tR\x06action\x12&\n" +
+	"\x0fpayment_link_id\x18\x06 \x01(\tR\rpaymentLinkId\x12\x1b\n" +
+	"\tshort_url\x18\a \x01(\tR\bshortUrl\x12\x16\n" +
+	"\x06reason\x18\b \x01(\tR\x06reason\x12-\n" +
+	"\x12guardrails_checked\x18\t \x03(\tR\x11guardrailsChecked\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\n" +
+	" \x01(\x03R\tcreatedAt\"U\n" +
+	"\x13SaveWorkflowRequest\x12>\n" +
+	"\bworkflow\x18\x01 \x01(\v2\".mongodb_service.MongoWorkflowDataR\bworkflow\"D\n" +
+	"\x14ListWorkflowsRequest\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"z\n" +
+	"\x15ListWorkflowsResponse\x12@\n" +
+	"\tworkflows\x18\x01 \x03(\v2\".mongodb_service.MongoWorkflowDataR\tworkflows\x12\x1f\n" +
+	"\vtotal_count\x18\x02 \x01(\x05R\n" +
+	"totalCount\"\x8b\x01\n" +
+	"\x15MongoWorkflowResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12>\n" +
+	"\bworkflow\x18\x03 \x01(\v2\".mongodb_service.MongoWorkflowDataR\bworkflow2\x9a\x04\n" +
 	"\vUserService\x12U\n" +
 	"\n" +
 	"CreateUser\x12\".mongodb_service.CreateUserRequest\x1a#.mongodb_service.CreateUserResponse\x12L\n" +
@@ -5574,7 +5927,10 @@ const file_proto_mongo_service_mongodb_service_proto_rawDesc = "" +
 	"\x15SaveAnalyticsSnapshot\x12-.mongodb_service.SaveAnalyticsSnapshotRequest\x1a'.mongodb_service.MongoAnalyticsResponse\x12w\n" +
 	"\x1aGetLatestAnalyticsSnapshot\x12,.mongodb_service.GetAnalyticsSnapshotRequest\x1a+.mongodb_service.MongoAnalyticsSnapshotData\x12e\n" +
 	"\x10SaveFailureEvent\x12(.mongodb_service.SaveFailureEventRequest\x1a'.mongodb_service.MongoAnalyticsResponse\x12j\n" +
-	"\x11ListFailureEvents\x12).mongodb_service.ListFailureEventsRequest\x1a*.mongodb_service.ListFailureEventsResponseBBZ@github.com/RevenueIQ/revenueiq_dev_kit/proto/mongo_service;protob\x06proto3"
+	"\x11ListFailureEvents\x12).mongodb_service.ListFailureEventsRequest\x1a*.mongodb_service.ListFailureEventsResponse2\xd4\x01\n" +
+	"\x14WorkflowMongoService\x12\\\n" +
+	"\fSaveWorkflow\x12$.mongodb_service.SaveWorkflowRequest\x1a&.mongodb_service.MongoWorkflowResponse\x12^\n" +
+	"\rListWorkflows\x12%.mongodb_service.ListWorkflowsRequest\x1a&.mongodb_service.ListWorkflowsResponseBBZ@github.com/RevenueIQ/revenueiq_dev_kit/proto/mongo_service;protob\x06proto3"
 
 var (
 	file_proto_mongo_service_mongodb_service_proto_rawDescOnce sync.Once
@@ -5588,7 +5944,7 @@ func file_proto_mongo_service_mongodb_service_proto_rawDescGZIP() []byte {
 	return file_proto_mongo_service_mongodb_service_proto_rawDescData
 }
 
-var file_proto_mongo_service_mongodb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 79)
+var file_proto_mongo_service_mongodb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 84)
 var file_proto_mongo_service_mongodb_service_proto_goTypes = []any{
 	(*User)(nil),                          // 0: mongodb_service.User
 	(*CreateUserRequest)(nil),             // 1: mongodb_service.CreateUserRequest
@@ -5668,14 +6024,19 @@ var file_proto_mongo_service_mongodb_service_proto_goTypes = []any{
 	(*SaveFailureEventRequest)(nil),       // 75: mongodb_service.SaveFailureEventRequest
 	(*ListFailureEventsRequest)(nil),      // 76: mongodb_service.ListFailureEventsRequest
 	(*ListFailureEventsResponse)(nil),     // 77: mongodb_service.ListFailureEventsResponse
-	nil,                                   // 78: mongodb_service.QueryUsersRequest.FiltersEntry
+	(*MongoWorkflowData)(nil),             // 78: mongodb_service.MongoWorkflowData
+	(*SaveWorkflowRequest)(nil),           // 79: mongodb_service.SaveWorkflowRequest
+	(*ListWorkflowsRequest)(nil),          // 80: mongodb_service.ListWorkflowsRequest
+	(*ListWorkflowsResponse)(nil),         // 81: mongodb_service.ListWorkflowsResponse
+	(*MongoWorkflowResponse)(nil),         // 82: mongodb_service.MongoWorkflowResponse
+	nil,                                   // 83: mongodb_service.QueryUsersRequest.FiltersEntry
 }
 var file_proto_mongo_service_mongodb_service_proto_depIdxs = []int32{
 	0,  // 0: mongodb_service.CreateUserResponse.user:type_name -> mongodb_service.User
 	0,  // 1: mongodb_service.GetUserResponse.user:type_name -> mongodb_service.User
 	0,  // 2: mongodb_service.GetUserByEmailResponse.user:type_name -> mongodb_service.User
 	0,  // 3: mongodb_service.UpdateUserResponse.user:type_name -> mongodb_service.User
-	78, // 4: mongodb_service.QueryUsersRequest.filters:type_name -> mongodb_service.QueryUsersRequest.FiltersEntry
+	83, // 4: mongodb_service.QueryUsersRequest.filters:type_name -> mongodb_service.QueryUsersRequest.FiltersEntry
 	0,  // 5: mongodb_service.QueryUsersResponse.users:type_name -> mongodb_service.User
 	13, // 6: mongodb_service.PickupDetailsData.address:type_name -> mongodb_service.AddressData
 	13, // 7: mongodb_service.OrderData.delivery_address:type_name -> mongodb_service.AddressData
@@ -5712,83 +6073,90 @@ var file_proto_mongo_service_mongodb_service_proto_depIdxs = []int32{
 	70, // 38: mongodb_service.SaveAnalyticsSnapshotRequest.snapshot:type_name -> mongodb_service.MongoAnalyticsSnapshotData
 	74, // 39: mongodb_service.SaveFailureEventRequest.event:type_name -> mongodb_service.MongoFailureEventData
 	74, // 40: mongodb_service.ListFailureEventsResponse.events:type_name -> mongodb_service.MongoFailureEventData
-	1,  // 41: mongodb_service.UserService.CreateUser:input_type -> mongodb_service.CreateUserRequest
-	3,  // 42: mongodb_service.UserService.GetUser:input_type -> mongodb_service.GetUserRequest
-	5,  // 43: mongodb_service.UserService.GetUserByEmail:input_type -> mongodb_service.GetUserByEmailRequest
-	7,  // 44: mongodb_service.UserService.UpdateUser:input_type -> mongodb_service.UpdateUserRequest
-	9,  // 45: mongodb_service.UserService.DeleteUser:input_type -> mongodb_service.DeleteUserRequest
-	11, // 46: mongodb_service.UserService.QueryUsers:input_type -> mongodb_service.QueryUsersRequest
-	17, // 47: mongodb_service.OrderMongoService.CreateOrder:input_type -> mongodb_service.CreateMongoOrderRequest
-	18, // 48: mongodb_service.OrderMongoService.GetOrder:input_type -> mongodb_service.GetMongoOrderRequest
-	19, // 49: mongodb_service.OrderMongoService.UpdateOrderStatus:input_type -> mongodb_service.UpdateMongoOrderStatusRequest
-	20, // 50: mongodb_service.OrderMongoService.ListOrders:input_type -> mongodb_service.ListMongoOrdersRequest
-	25, // 51: mongodb_service.DroneMongoService.RegisterDrone:input_type -> mongodb_service.RegisterMongoDroneRequest
-	26, // 52: mongodb_service.DroneMongoService.GetDrone:input_type -> mongodb_service.GetMongoDroneRequest
-	27, // 53: mongodb_service.DroneMongoService.UpdateDroneStatus:input_type -> mongodb_service.UpdateMongoDroneStatusRequest
-	28, // 54: mongodb_service.DroneMongoService.FindAvailableDrone:input_type -> mongodb_service.FindAvailableDroneRequest
-	29, // 55: mongodb_service.DroneMongoService.ReserveDrone:input_type -> mongodb_service.ReserveMongoDroneRequest
-	30, // 56: mongodb_service.DroneMongoService.AssignDrone:input_type -> mongodb_service.AssignMongoDroneRequest
-	31, // 57: mongodb_service.DroneMongoService.ListDrones:input_type -> mongodb_service.ListMongoDronesRequest
-	35, // 58: mongodb_service.FlightMongoService.AddNoFlyZone:input_type -> mongodb_service.AddMongoNoFlyZoneRequest
-	36, // 59: mongodb_service.FlightMongoService.GetNoFlyZones:input_type -> mongodb_service.GetMongoNoFlyZonesRequest
-	40, // 60: mongodb_service.OperationsMongoService.RegisterStation:input_type -> mongodb_service.RegisterMongoStationRequest
-	42, // 61: mongodb_service.OperationsMongoService.GetStations:input_type -> mongodb_service.GetMongoStationsRequest
-	45, // 62: mongodb_service.OperationsMongoService.SaveMaintenance:input_type -> mongodb_service.SaveMongoMaintenanceRequest
-	48, // 63: mongodb_service.DeliveryMongoService.SaveDelivery:input_type -> mongodb_service.SaveMongoDeliveryRequest
-	49, // 64: mongodb_service.DeliveryMongoService.GetDelivery:input_type -> mongodb_service.GetMongoDeliveryRequest
-	52, // 65: mongodb_service.PaymentMongoService.SaveTransaction:input_type -> mongodb_service.SaveMongoTxRequest
-	54, // 66: mongodb_service.PaymentMongoService.GetUserWallet:input_type -> mongodb_service.GetUserWalletRequest
-	55, // 67: mongodb_service.PaymentMongoService.UpdateUserWallet:input_type -> mongodb_service.UpdateUserWalletRequest
-	57, // 68: mongodb_service.PaymentMongoService.ListUserTransactions:input_type -> mongodb_service.ListUserTxRequest
-	60, // 69: mongodb_service.WarehouseMongoService.SaveBusiness:input_type -> mongodb_service.SaveMongoBusinessRequest
-	63, // 70: mongodb_service.WarehouseMongoService.SaveWarehouse:input_type -> mongodb_service.SaveMongoWarehouseRequest
-	66, // 71: mongodb_service.WarehouseMongoService.SaveInventory:input_type -> mongodb_service.SaveMongoInventoryRequest
-	68, // 72: mongodb_service.WarehouseMongoService.GetInventory:input_type -> mongodb_service.GetMongoInventoryRequest
-	71, // 73: mongodb_service.AnalyticsMongoService.SaveAnalyticsSnapshot:input_type -> mongodb_service.SaveAnalyticsSnapshotRequest
-	72, // 74: mongodb_service.AnalyticsMongoService.GetLatestAnalyticsSnapshot:input_type -> mongodb_service.GetAnalyticsSnapshotRequest
-	75, // 75: mongodb_service.AnalyticsMongoService.SaveFailureEvent:input_type -> mongodb_service.SaveFailureEventRequest
-	76, // 76: mongodb_service.AnalyticsMongoService.ListFailureEvents:input_type -> mongodb_service.ListFailureEventsRequest
-	2,  // 77: mongodb_service.UserService.CreateUser:output_type -> mongodb_service.CreateUserResponse
-	4,  // 78: mongodb_service.UserService.GetUser:output_type -> mongodb_service.GetUserResponse
-	6,  // 79: mongodb_service.UserService.GetUserByEmail:output_type -> mongodb_service.GetUserByEmailResponse
-	8,  // 80: mongodb_service.UserService.UpdateUser:output_type -> mongodb_service.UpdateUserResponse
-	10, // 81: mongodb_service.UserService.DeleteUser:output_type -> mongodb_service.DeleteUserResponse
-	12, // 82: mongodb_service.UserService.QueryUsers:output_type -> mongodb_service.QueryUsersResponse
-	22, // 83: mongodb_service.OrderMongoService.CreateOrder:output_type -> mongodb_service.MongoOrderResponse
-	22, // 84: mongodb_service.OrderMongoService.GetOrder:output_type -> mongodb_service.MongoOrderResponse
-	22, // 85: mongodb_service.OrderMongoService.UpdateOrderStatus:output_type -> mongodb_service.MongoOrderResponse
-	21, // 86: mongodb_service.OrderMongoService.ListOrders:output_type -> mongodb_service.ListMongoOrdersResponse
-	33, // 87: mongodb_service.DroneMongoService.RegisterDrone:output_type -> mongodb_service.MongoDroneResponse
-	33, // 88: mongodb_service.DroneMongoService.GetDrone:output_type -> mongodb_service.MongoDroneResponse
-	33, // 89: mongodb_service.DroneMongoService.UpdateDroneStatus:output_type -> mongodb_service.MongoDroneResponse
-	33, // 90: mongodb_service.DroneMongoService.FindAvailableDrone:output_type -> mongodb_service.MongoDroneResponse
-	33, // 91: mongodb_service.DroneMongoService.ReserveDrone:output_type -> mongodb_service.MongoDroneResponse
-	33, // 92: mongodb_service.DroneMongoService.AssignDrone:output_type -> mongodb_service.MongoDroneResponse
-	32, // 93: mongodb_service.DroneMongoService.ListDrones:output_type -> mongodb_service.ListMongoDronesResponse
-	37, // 94: mongodb_service.FlightMongoService.AddNoFlyZone:output_type -> mongodb_service.MongoNoFlyZoneResponse
-	38, // 95: mongodb_service.FlightMongoService.GetNoFlyZones:output_type -> mongodb_service.ListMongoNoFlyZonesResponse
-	41, // 96: mongodb_service.OperationsMongoService.RegisterStation:output_type -> mongodb_service.MongoStationResponse
-	43, // 97: mongodb_service.OperationsMongoService.GetStations:output_type -> mongodb_service.ListMongoStationsResponse
-	46, // 98: mongodb_service.OperationsMongoService.SaveMaintenance:output_type -> mongodb_service.MongoMaintenanceResponse
-	50, // 99: mongodb_service.DeliveryMongoService.SaveDelivery:output_type -> mongodb_service.MongoDeliveryResponse
-	50, // 100: mongodb_service.DeliveryMongoService.GetDelivery:output_type -> mongodb_service.MongoDeliveryResponse
-	53, // 101: mongodb_service.PaymentMongoService.SaveTransaction:output_type -> mongodb_service.MongoTxResponse
-	56, // 102: mongodb_service.PaymentMongoService.GetUserWallet:output_type -> mongodb_service.MongoWalletResponse
-	56, // 103: mongodb_service.PaymentMongoService.UpdateUserWallet:output_type -> mongodb_service.MongoWalletResponse
-	58, // 104: mongodb_service.PaymentMongoService.ListUserTransactions:output_type -> mongodb_service.ListUserTxResponse
-	61, // 105: mongodb_service.WarehouseMongoService.SaveBusiness:output_type -> mongodb_service.MongoBusinessResponse
-	64, // 106: mongodb_service.WarehouseMongoService.SaveWarehouse:output_type -> mongodb_service.MongoWarehouseResponse
-	67, // 107: mongodb_service.WarehouseMongoService.SaveInventory:output_type -> mongodb_service.MongoInventoryResponse
-	69, // 108: mongodb_service.WarehouseMongoService.GetInventory:output_type -> mongodb_service.ListMongoInventoryResponse
-	73, // 109: mongodb_service.AnalyticsMongoService.SaveAnalyticsSnapshot:output_type -> mongodb_service.MongoAnalyticsResponse
-	70, // 110: mongodb_service.AnalyticsMongoService.GetLatestAnalyticsSnapshot:output_type -> mongodb_service.MongoAnalyticsSnapshotData
-	73, // 111: mongodb_service.AnalyticsMongoService.SaveFailureEvent:output_type -> mongodb_service.MongoAnalyticsResponse
-	77, // 112: mongodb_service.AnalyticsMongoService.ListFailureEvents:output_type -> mongodb_service.ListFailureEventsResponse
-	77, // [77:113] is the sub-list for method output_type
-	41, // [41:77] is the sub-list for method input_type
-	41, // [41:41] is the sub-list for extension type_name
-	41, // [41:41] is the sub-list for extension extendee
-	0,  // [0:41] is the sub-list for field type_name
+	78, // 41: mongodb_service.SaveWorkflowRequest.workflow:type_name -> mongodb_service.MongoWorkflowData
+	78, // 42: mongodb_service.ListWorkflowsResponse.workflows:type_name -> mongodb_service.MongoWorkflowData
+	78, // 43: mongodb_service.MongoWorkflowResponse.workflow:type_name -> mongodb_service.MongoWorkflowData
+	1,  // 44: mongodb_service.UserService.CreateUser:input_type -> mongodb_service.CreateUserRequest
+	3,  // 45: mongodb_service.UserService.GetUser:input_type -> mongodb_service.GetUserRequest
+	5,  // 46: mongodb_service.UserService.GetUserByEmail:input_type -> mongodb_service.GetUserByEmailRequest
+	7,  // 47: mongodb_service.UserService.UpdateUser:input_type -> mongodb_service.UpdateUserRequest
+	9,  // 48: mongodb_service.UserService.DeleteUser:input_type -> mongodb_service.DeleteUserRequest
+	11, // 49: mongodb_service.UserService.QueryUsers:input_type -> mongodb_service.QueryUsersRequest
+	17, // 50: mongodb_service.OrderMongoService.CreateOrder:input_type -> mongodb_service.CreateMongoOrderRequest
+	18, // 51: mongodb_service.OrderMongoService.GetOrder:input_type -> mongodb_service.GetMongoOrderRequest
+	19, // 52: mongodb_service.OrderMongoService.UpdateOrderStatus:input_type -> mongodb_service.UpdateMongoOrderStatusRequest
+	20, // 53: mongodb_service.OrderMongoService.ListOrders:input_type -> mongodb_service.ListMongoOrdersRequest
+	25, // 54: mongodb_service.DroneMongoService.RegisterDrone:input_type -> mongodb_service.RegisterMongoDroneRequest
+	26, // 55: mongodb_service.DroneMongoService.GetDrone:input_type -> mongodb_service.GetMongoDroneRequest
+	27, // 56: mongodb_service.DroneMongoService.UpdateDroneStatus:input_type -> mongodb_service.UpdateMongoDroneStatusRequest
+	28, // 57: mongodb_service.DroneMongoService.FindAvailableDrone:input_type -> mongodb_service.FindAvailableDroneRequest
+	29, // 58: mongodb_service.DroneMongoService.ReserveDrone:input_type -> mongodb_service.ReserveMongoDroneRequest
+	30, // 59: mongodb_service.DroneMongoService.AssignDrone:input_type -> mongodb_service.AssignMongoDroneRequest
+	31, // 60: mongodb_service.DroneMongoService.ListDrones:input_type -> mongodb_service.ListMongoDronesRequest
+	35, // 61: mongodb_service.FlightMongoService.AddNoFlyZone:input_type -> mongodb_service.AddMongoNoFlyZoneRequest
+	36, // 62: mongodb_service.FlightMongoService.GetNoFlyZones:input_type -> mongodb_service.GetMongoNoFlyZonesRequest
+	40, // 63: mongodb_service.OperationsMongoService.RegisterStation:input_type -> mongodb_service.RegisterMongoStationRequest
+	42, // 64: mongodb_service.OperationsMongoService.GetStations:input_type -> mongodb_service.GetMongoStationsRequest
+	45, // 65: mongodb_service.OperationsMongoService.SaveMaintenance:input_type -> mongodb_service.SaveMongoMaintenanceRequest
+	48, // 66: mongodb_service.DeliveryMongoService.SaveDelivery:input_type -> mongodb_service.SaveMongoDeliveryRequest
+	49, // 67: mongodb_service.DeliveryMongoService.GetDelivery:input_type -> mongodb_service.GetMongoDeliveryRequest
+	52, // 68: mongodb_service.PaymentMongoService.SaveTransaction:input_type -> mongodb_service.SaveMongoTxRequest
+	54, // 69: mongodb_service.PaymentMongoService.GetUserWallet:input_type -> mongodb_service.GetUserWalletRequest
+	55, // 70: mongodb_service.PaymentMongoService.UpdateUserWallet:input_type -> mongodb_service.UpdateUserWalletRequest
+	57, // 71: mongodb_service.PaymentMongoService.ListUserTransactions:input_type -> mongodb_service.ListUserTxRequest
+	60, // 72: mongodb_service.WarehouseMongoService.SaveBusiness:input_type -> mongodb_service.SaveMongoBusinessRequest
+	63, // 73: mongodb_service.WarehouseMongoService.SaveWarehouse:input_type -> mongodb_service.SaveMongoWarehouseRequest
+	66, // 74: mongodb_service.WarehouseMongoService.SaveInventory:input_type -> mongodb_service.SaveMongoInventoryRequest
+	68, // 75: mongodb_service.WarehouseMongoService.GetInventory:input_type -> mongodb_service.GetMongoInventoryRequest
+	71, // 76: mongodb_service.AnalyticsMongoService.SaveAnalyticsSnapshot:input_type -> mongodb_service.SaveAnalyticsSnapshotRequest
+	72, // 77: mongodb_service.AnalyticsMongoService.GetLatestAnalyticsSnapshot:input_type -> mongodb_service.GetAnalyticsSnapshotRequest
+	75, // 78: mongodb_service.AnalyticsMongoService.SaveFailureEvent:input_type -> mongodb_service.SaveFailureEventRequest
+	76, // 79: mongodb_service.AnalyticsMongoService.ListFailureEvents:input_type -> mongodb_service.ListFailureEventsRequest
+	79, // 80: mongodb_service.WorkflowMongoService.SaveWorkflow:input_type -> mongodb_service.SaveWorkflowRequest
+	80, // 81: mongodb_service.WorkflowMongoService.ListWorkflows:input_type -> mongodb_service.ListWorkflowsRequest
+	2,  // 82: mongodb_service.UserService.CreateUser:output_type -> mongodb_service.CreateUserResponse
+	4,  // 83: mongodb_service.UserService.GetUser:output_type -> mongodb_service.GetUserResponse
+	6,  // 84: mongodb_service.UserService.GetUserByEmail:output_type -> mongodb_service.GetUserByEmailResponse
+	8,  // 85: mongodb_service.UserService.UpdateUser:output_type -> mongodb_service.UpdateUserResponse
+	10, // 86: mongodb_service.UserService.DeleteUser:output_type -> mongodb_service.DeleteUserResponse
+	12, // 87: mongodb_service.UserService.QueryUsers:output_type -> mongodb_service.QueryUsersResponse
+	22, // 88: mongodb_service.OrderMongoService.CreateOrder:output_type -> mongodb_service.MongoOrderResponse
+	22, // 89: mongodb_service.OrderMongoService.GetOrder:output_type -> mongodb_service.MongoOrderResponse
+	22, // 90: mongodb_service.OrderMongoService.UpdateOrderStatus:output_type -> mongodb_service.MongoOrderResponse
+	21, // 91: mongodb_service.OrderMongoService.ListOrders:output_type -> mongodb_service.ListMongoOrdersResponse
+	33, // 92: mongodb_service.DroneMongoService.RegisterDrone:output_type -> mongodb_service.MongoDroneResponse
+	33, // 93: mongodb_service.DroneMongoService.GetDrone:output_type -> mongodb_service.MongoDroneResponse
+	33, // 94: mongodb_service.DroneMongoService.UpdateDroneStatus:output_type -> mongodb_service.MongoDroneResponse
+	33, // 95: mongodb_service.DroneMongoService.FindAvailableDrone:output_type -> mongodb_service.MongoDroneResponse
+	33, // 96: mongodb_service.DroneMongoService.ReserveDrone:output_type -> mongodb_service.MongoDroneResponse
+	33, // 97: mongodb_service.DroneMongoService.AssignDrone:output_type -> mongodb_service.MongoDroneResponse
+	32, // 98: mongodb_service.DroneMongoService.ListDrones:output_type -> mongodb_service.ListMongoDronesResponse
+	37, // 99: mongodb_service.FlightMongoService.AddNoFlyZone:output_type -> mongodb_service.MongoNoFlyZoneResponse
+	38, // 100: mongodb_service.FlightMongoService.GetNoFlyZones:output_type -> mongodb_service.ListMongoNoFlyZonesResponse
+	41, // 101: mongodb_service.OperationsMongoService.RegisterStation:output_type -> mongodb_service.MongoStationResponse
+	43, // 102: mongodb_service.OperationsMongoService.GetStations:output_type -> mongodb_service.ListMongoStationsResponse
+	46, // 103: mongodb_service.OperationsMongoService.SaveMaintenance:output_type -> mongodb_service.MongoMaintenanceResponse
+	50, // 104: mongodb_service.DeliveryMongoService.SaveDelivery:output_type -> mongodb_service.MongoDeliveryResponse
+	50, // 105: mongodb_service.DeliveryMongoService.GetDelivery:output_type -> mongodb_service.MongoDeliveryResponse
+	53, // 106: mongodb_service.PaymentMongoService.SaveTransaction:output_type -> mongodb_service.MongoTxResponse
+	56, // 107: mongodb_service.PaymentMongoService.GetUserWallet:output_type -> mongodb_service.MongoWalletResponse
+	56, // 108: mongodb_service.PaymentMongoService.UpdateUserWallet:output_type -> mongodb_service.MongoWalletResponse
+	58, // 109: mongodb_service.PaymentMongoService.ListUserTransactions:output_type -> mongodb_service.ListUserTxResponse
+	61, // 110: mongodb_service.WarehouseMongoService.SaveBusiness:output_type -> mongodb_service.MongoBusinessResponse
+	64, // 111: mongodb_service.WarehouseMongoService.SaveWarehouse:output_type -> mongodb_service.MongoWarehouseResponse
+	67, // 112: mongodb_service.WarehouseMongoService.SaveInventory:output_type -> mongodb_service.MongoInventoryResponse
+	69, // 113: mongodb_service.WarehouseMongoService.GetInventory:output_type -> mongodb_service.ListMongoInventoryResponse
+	73, // 114: mongodb_service.AnalyticsMongoService.SaveAnalyticsSnapshot:output_type -> mongodb_service.MongoAnalyticsResponse
+	70, // 115: mongodb_service.AnalyticsMongoService.GetLatestAnalyticsSnapshot:output_type -> mongodb_service.MongoAnalyticsSnapshotData
+	73, // 116: mongodb_service.AnalyticsMongoService.SaveFailureEvent:output_type -> mongodb_service.MongoAnalyticsResponse
+	77, // 117: mongodb_service.AnalyticsMongoService.ListFailureEvents:output_type -> mongodb_service.ListFailureEventsResponse
+	82, // 118: mongodb_service.WorkflowMongoService.SaveWorkflow:output_type -> mongodb_service.MongoWorkflowResponse
+	81, // 119: mongodb_service.WorkflowMongoService.ListWorkflows:output_type -> mongodb_service.ListWorkflowsResponse
+	82, // [82:120] is the sub-list for method output_type
+	44, // [44:82] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_proto_mongo_service_mongodb_service_proto_init() }
@@ -5803,9 +6171,9 @@ func file_proto_mongo_service_mongodb_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_mongo_service_mongodb_service_proto_rawDesc), len(file_proto_mongo_service_mongodb_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   79,
+			NumMessages:   84,
 			NumExtensions: 0,
-			NumServices:   9,
+			NumServices:   10,
 		},
 		GoTypes:           file_proto_mongo_service_mongodb_service_proto_goTypes,
 		DependencyIndexes: file_proto_mongo_service_mongodb_service_proto_depIdxs,

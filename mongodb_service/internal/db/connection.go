@@ -26,6 +26,7 @@ type MongoDatabase struct {
 	InventoryCol          *mongo.Collection // Inventory SKUs collection
 	AnalyticsSnapshotsCol *mongo.Collection // Analytics snapshots collection
 	FailureEventsCol      *mongo.Collection // Failure events collection
+	WorkflowsCol          *mongo.Collection // Workflows collection
 }
 
 // ConnectMongo initializes a connection to MongoDB.
@@ -62,6 +63,7 @@ func ConnectMongo(ctx context.Context, uri, dbName, colName string) (*MongoDatab
 	inventoryCol := db.Collection("inventory_skus")
 	analyticsSnapshotsCol := db.Collection("analytics_snapshots")
 	failureEventsCol := db.Collection("failure_events")
+	workflowsCol := db.Collection("workflows")
 
 	return &MongoDatabase{
 		Client:                client,
@@ -80,5 +82,7 @@ func ConnectMongo(ctx context.Context, uri, dbName, colName string) (*MongoDatab
 		InventoryCol:          inventoryCol,
 		AnalyticsSnapshotsCol: analyticsSnapshotsCol,
 		FailureEventsCol:      failureEventsCol,
+		WorkflowsCol:          workflowsCol,
 	}, nil
 }
+

@@ -27,7 +27,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY reconciliation_engine/pyproject.toml .
 RUN pip install --upgrade pip hatchling && \
-    pip install --no-cache-dir fastapi uvicorn grpcio protobuf pydantic
+    pip install --no-cache-dir fastapi uvicorn grpcio protobuf pydantic httpx
 
 # =========================
 # STAGE 3: DEV
@@ -37,6 +37,7 @@ FROM base AS dev
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+COPY revenueiq_dev_kit/proto/mongo_service/proto/mongo_service ./src/proto/mongo_service
 COPY reconciliation_engine/src ./src
 COPY reconciliation_engine/pyproject.toml .
 

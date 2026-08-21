@@ -32,6 +32,7 @@ func StartGRPCServer(port string, mongoDB *db.MongoDatabase, redisClient redis_p
 	pb.RegisterPaymentMongoServiceServer(grpcServer, serviceServer)
 	pb.RegisterWarehouseMongoServiceServer(grpcServer, serviceServer)
 	pb.RegisterAnalyticsMongoServiceServer(grpcServer, serviceServer)
+	pb.RegisterWorkflowMongoServiceServer(grpcServer, serviceServer)
 
 	return grpcServer, lis, nil
 }

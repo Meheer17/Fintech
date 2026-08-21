@@ -1,11 +1,21 @@
 import os
+import sys
 import logging
 import time
 import httpx
-from pymongo import MongoClient
+import grpc
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
+
+# Ensure proto import path is available
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "proto", "mongo_service"))
+try:
+    import mongodb_service_pb2 as mongo_pb
+    import mongodb_service_pb2_grpc as mongo_pb_grpc
+except ImportError:
+    from proto.mongo_service import mongodb_service_pb2 as mongo_pb
+    from proto.mongo_service import mongodb_service_pb2_grpc as mongo_pb_grpc
 
 from guardrails import RecoveryGuardrails
 
@@ -13,9 +23,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
-if "mongodb:" not in MONGO_URI and "localhost" in MONGO_URI:
-    MONGO_URI = "mongodb://localhost:27017"
+MONGO_SERVICE_ADDR = os.getenv("MONGO_SERVICE_ADDR", "localhost:50010")
 
 def create_real_razorpay_payment_link(amount_paise: int, description: str, customer_email: str = "customer@example.com") -> dict:
     """Calls actual Razorpay API to create a live payment link."""
@@ -87,14 +95,29 @@ def process_workflow(payment_id: str, current_retries: int, amount_paise: int, a
             "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ")
         }
 
-    # Store workflow in MongoDB
+    # Store workflow via MongoService gRPC
     try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
-        db = client["revenueiq_db"]
-        db.workflows.update_one({"payment_id": payment_id}, {"$set": result}, upsert=True)
-        client.close()
+        addr = MONGO_SERVICE_ADDR
+        if ":" not in addr:
+            addr = f"{addr}:50010"
+        with grpc.insecure_channel(addr) as channel:
+            stub = mongo_pb_grpc.WorkflowMongoServiceStub(channel)
+            wf_data = mongo_pb.MongoWorkflowData(
+                workflow_id=result.get("workflow_id", ""),
+                payment_id=payment_id,
+                amount_paise=float(result.get("amount_paise", 0)),
+                status=result.get("status", ""),
+                action=result.get("action", ""),
+                payment_link_id=result.get("payment_link_id", ""),
+                short_url=result.get("short_url", ""),
+                reason=result.get("reason", ""),
+                guardrails_checked=result.get("guardrails_checked", []),
+                created_at=int(time.time())
+            )
+            stub.SaveWorkflow(mongo_pb.SaveWorkflowRequest(workflow=wf_data), timeout=3.0)
+            logging.info(f"Successfully saved workflow via MongoService gRPC for {payment_id}")
     except Exception as e:
-        logging.warning(f"Could not persist workflow to MongoDB: {e}")
+        logging.warning(f"Could not persist workflow via MongoService gRPC: {e}")
         
     return result
 

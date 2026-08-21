@@ -11,6 +11,7 @@ import (
 	"github.com/RevenueIQ/mongo_service/internal/db"
 	"github.com/RevenueIQ/mongo_service/internal/grpc_clients"
 	"github.com/RevenueIQ/mongo_service/internal/grpc_servers"
+	redis_pb "github.com/RevenueIQ/revenueiq_dev_kit/proto/redis_service"
 )
 
 func getEnv(key, defaultValue string) string {
@@ -51,13 +52,16 @@ func main() {
 	}()
 	log.Printf("Successfully connected to MongoDB.")
 
-	// Connect to Redis Cache gRPC Service using the client helper
+	// Connect to Redis Cache gRPC Service using the client helper (optional fallback)
+	var redisClient redis_pb.RedisCacheServiceClient
 	redisClient, redisConn, err := grpcclients.NewRedisCacheClient(redisCacheAddr)
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis cache service: %v", err)
+		log.Printf("[WARNING] Redis cache service unavailable (%v). Operating without optional cache layer.", err)
+		redisClient = nil
+	} else {
+		defer redisConn.Close()
+		log.Printf("Successfully connected to Redis cache client.")
 	}
-	defer redisConn.Close()
-	log.Printf("Successfully connected to Redis cache client.")
 
 	// Start gRPC Server using the server helper
 	grpcServer, lis, err := grpcservers.StartGRPCServer(port, mongoDB, redisClient)
