@@ -1,22 +1,16 @@
 # =========================
 # BUILD STAGE
 # =========================
-FROM golang:1.26-alpine AS builder
+FROM golang:alpine AS builder
 
 ENV GOWORK=off
 WORKDIR /app
 
-COPY revenueiq_dev_kit/go.mod revenueiq_dev_kit/go.sum* ./revenueiq_dev_kit/
-COPY checkout_tracker/go.mod checkout_tracker/go.sum* ./checkout_tracker/
-
-WORKDIR /app/checkout_tracker
-RUN go mod download || true
-
-WORKDIR /app
 COPY revenueiq_dev_kit ./revenueiq_dev_kit
 COPY checkout_tracker ./checkout_tracker
 
 WORKDIR /app/checkout_tracker
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -trimpath -o /app/checkout-tracker ./cmd/server/main.go
 
 # =========================

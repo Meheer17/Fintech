@@ -19,7 +19,6 @@ credentials.json
 # ------------------------------------------
 # Binaries & Executables
 # ------------------------------------------
-server
 bin/
 *.exe
 *.dll

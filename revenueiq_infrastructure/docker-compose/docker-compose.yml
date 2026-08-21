@@ -8,7 +8,7 @@ services:
     image: mongo:7.0
     container_name: revenueiq-mongodb-${STACK_NAME:-dev}
     ports:
-      - "${MONGO_HOST_PORT:-27017}:27017"
+      - "27018:27017"
     volumes:
       - mongodb-data:/data/db
     healthcheck:
@@ -19,6 +19,7 @@ services:
       start_period: 10s
     networks:
       - backend
+      - frontend
 
   # Redis Database
   redis:
@@ -227,6 +228,8 @@ services:
     environment:
       - PORT=50005
       - HTTP_PORT=8005
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB=revenueiq_db
       - MONGO_SERVICE_ADDR=mongo-service:50010
       - AUDIT_SERVICE_ADDR=audit-service:50007
       - FAILURE_DETECTOR_ADDR=failure-detector:50002

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { WorkflowRecord } from '../types';
-import { RefreshCw, CheckCircle2, Shield } from 'lucide-react';
+import { RefreshCw, CheckCircle2, Shield, Play } from 'lucide-react';
+import { triggerWorkflow } from '../lib/api';
 
 interface RecoveriesTabProps {
   workflows?: WorkflowRecord[];
@@ -8,6 +9,20 @@ interface RecoveriesTabProps {
 
 export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) => {
   const safeWorkflows = Array.isArray(workflows) && workflows.length > 0 ? workflows : [];
+  const [executingId, setExecutingId] = useState<string | null>(null);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  const handleRunWorkflow = async (paymentId: string, currentRetries: number, amount: number) => {
+    setExecutingId(paymentId);
+    try {
+      const res = await triggerWorkflow(paymentId, currentRetries, amount);
+      setStatusMsg(`Triggered live workflow for ${paymentId}: ${res.action} (${res.reason})`);
+    } catch (e: any) {
+      setStatusMsg(`Workflow error: ${e.message}`);
+    } finally {
+      setExecutingId(null);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -21,6 +36,12 @@ export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) 
           </p>
         </div>
       </div>
+
+      {statusMsg && (
+        <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: '#e7f5ff', border: '1px solid #74c0fc', color: '#1971c2', fontSize: '13px', fontWeight: 600 }}>
+          {statusMsg}
+        </div>
+      )}
 
       {safeWorkflows.length === 0 ? (
         <div style={{
@@ -93,6 +114,28 @@ export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) 
                     ))}
                   </div>
                 </div>
+
+                {/* Trigger Button */}
+                <button
+                  onClick={() => handleRunWorkflow(wf.payment_id, wf.retry_count || 0, wf.amount_paise || 0)}
+                  disabled={executingId === wf.payment_id}
+                  style={{
+                    padding: '8px 12px',
+                    backgroundColor: '#4263eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Play size={14} /> {executingId === wf.payment_id ? 'Orchestrating...' : 'Trigger Live Recovery Step'}
+                </button>
 
                 {/* Steps Execution Pipeline */}
                 <div>

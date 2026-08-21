@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
@@ -98,12 +98,18 @@ export const App: React.FC = () => {
   const [workflows, setWorkflows] = useState<WorkflowRecord[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditEntry[]>([]);
 
-  useEffect(() => {
-    fetchOverviewMetrics().then(setMetrics);
-    fetchFailures().then(setFailures);
-    fetchWorkflows().then(setWorkflows);
-    fetchAuditLogs().then(setAuditLogs);
+  const refreshAllData = useCallback(() => {
+    fetchOverviewMetrics().then(setMetrics).catch(console.error);
+    fetchFailures().then(setFailures).catch(console.error);
+    fetchWorkflows().then(setWorkflows).catch(console.error);
+    fetchAuditLogs().then(setAuditLogs).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    refreshAllData();
+    const interval = setInterval(refreshAllData, 10000);
+    return () => clearInterval(interval);
+  }, [refreshAllData]);
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>

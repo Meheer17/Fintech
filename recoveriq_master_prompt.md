@@ -925,7 +925,7 @@ from strands.models.openai import OpenAIModel
 
 model = OpenAIModel(
     model_id="mistral.ministral-3-8b-instruct",
-    client_args={"base_url": "https://bedrock-mantle.us-east-1.api.aws/v1"}
+    client_args={"base_url": "https://bedrock-mantle.ap-south-1.api.aws/v1"}
 )
 
 @tool
@@ -1563,7 +1563,7 @@ RAZORPAY_KEY_SECRET=xxxxx
 RAZORPAY_WEBHOOK_SECRET=xxxxx
 
 # LLM
-LLM_BASE_URL=https://bedrock-mantle.us-east-1.api.aws/v1
+LLM_BASE_URL=https://bedrock-mantle.ap-south-1.api.aws/v1
 LLM_MODEL_ID=mistral.ministral-3-8b-instruct
 LLM_API_KEY=your_key
 

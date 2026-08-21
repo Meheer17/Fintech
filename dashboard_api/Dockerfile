@@ -1,22 +1,16 @@
 # =========================
 # BUILD STAGE
 # =========================
-FROM golang:1.26-alpine AS builder
+FROM golang:alpine AS builder
 
 ENV GOWORK=off
 WORKDIR /app
 
-COPY revenueiq_dev_kit/go.mod revenueiq_dev_kit/go.sum* ./revenueiq_dev_kit/
-COPY dashboard_api/go.mod dashboard_api/go.sum* ./dashboard_api/
-
-WORKDIR /app/dashboard_api
-RUN go mod download || true
-
-WORKDIR /app
 COPY revenueiq_dev_kit ./revenueiq_dev_kit
 COPY dashboard_api ./dashboard_api
 
 WORKDIR /app/dashboard_api
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -trimpath -o /app/dashboard-api ./cmd/server/main.go
 
 # =========================

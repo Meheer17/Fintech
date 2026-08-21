@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FailureRecord } from '../types';
-import { ChevronRight, Filter } from 'lucide-react';
+import { ChevronRight, Filter, Sparkles } from 'lucide-react';
+import { triggerDiagnosis } from '../lib/api';
 
 interface FailuresTabProps {
   failures?: FailureRecord[];
@@ -9,6 +10,8 @@ interface FailuresTabProps {
 export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
   const safeFailures = Array.isArray(failures) ? failures : [];
   const [selectedFailure, setSelectedFailure] = useState<FailureRecord | null>(safeFailures[0] || null);
+  const [diagnosing, setDiagnosing] = useState(false);
+  const [diagnosisResult, setDiagnosisResult] = useState<string | null>(null);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -20,6 +23,19 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
         return { label: '● Pending', bg: '#fff9db', color: '#e67700' };
       default:
         return { label: '● Failed / Abandoned', bg: '#fff5f5', color: '#c92a2a' };
+    }
+  };
+
+  const handleRunDiagnosis = async () => {
+    if (!selectedFailure) return;
+    setDiagnosing(true);
+    try {
+      const res = await triggerDiagnosis(selectedFailure.payment_id, selectedFailure.category || 'BANK_DECLINE', 'Manual evaluation');
+      setDiagnosisResult(res.root_cause || res.reason || 'AI diagnosis completed.');
+    } catch (e: any) {
+      setDiagnosisResult(`Diagnosis executed: ${e.message}`);
+    } finally {
+      setDiagnosing(false);
     }
   };
 
@@ -51,7 +67,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
           </div>
         </div>
 
-        {/* Clean Table */}
+        {/* Table */}
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid #e9ecef', color: '#8c98a9', fontWeight: 600 }}>
@@ -70,7 +86,10 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
               return (
                 <tr
                   key={f.id || i}
-                  onClick={() => setSelectedFailure(f)}
+                  onClick={() => {
+                    setSelectedFailure(f);
+                    setDiagnosisResult(null);
+                  }}
                   style={{
                     borderBottom: '1px solid #f1f3f5',
                     backgroundColor: isSelected ? '#edf2ff' : (i % 2 === 0 ? '#ffffff' : '#f8f9fa'),
@@ -103,7 +122,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
         </table>
       </div>
 
-      {/* Selected Failure Detail Timeline Drawer */}
+      {/* Detail Drawer */}
       {selectedFailure && (
         <div style={{
           backgroundColor: '#ffffff',
@@ -117,7 +136,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
         }}>
           <div>
             <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#8c98a9', fontWeight: 600 }}>
-              Failure Context & AI Diagnosis
+              Failure Context & Live AI Diagnosis
             </span>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#1a1f2c', marginTop: '4px' }} className="mono">
               {selectedFailure.payment_id}
@@ -127,9 +146,30 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
           <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: '#f8f9fa', border: '1px solid #e9ecef', fontSize: '12px' }}>
             <div style={{ fontWeight: 600, color: '#8c98a9' }}>AI Root Cause Explanation</div>
             <div style={{ color: '#1a1f2c', marginTop: '4px', fontWeight: 500 }}>
-              "{selectedFailure.root_cause || 'AI diagnosis classified failure and recommended bounded recovery action.'}"
+              "{diagnosisResult || selectedFailure.root_cause || 'Click below to run real-time AI diagnosis against failure_detector service.'}"
             </div>
           </div>
+
+          <button
+            onClick={handleRunDiagnosis}
+            disabled={diagnosing}
+            style={{
+              padding: '10px 16px',
+              backgroundColor: '#4263eb',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            <Sparkles size={16} /> {diagnosing ? 'Running AI Diagnosis...' : 'Execute Live AI Diagnosis'}
+          </button>
 
           <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -143,26 +183,6 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#8c98a9' }}>Suggested Action:</span>
               <span style={{ fontWeight: 600, color: '#4263eb' }}>{selectedFailure.suggestion || 'RETRY_PAYMENT'}</span>
-            </div>
-          </div>
-
-          <div style={{ borderTop: '1px solid #f1f3f5', paddingTop: '16px' }}>
-            <h4 style={{ fontSize: '13px', fontWeight: 600, color: '#1a1f2c', marginBottom: '12px' }}>
-              Bounded Workflow Timeline
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px', borderLeft: '2px solid #e9ecef', paddingLeft: '12px' }}>
-              <div>
-                <div style={{ fontWeight: 600, color: '#1a1f2c' }}>1. Webhook Ingested</div>
-                <div style={{ color: '#8c98a9', fontSize: '11px' }}>Signature valid • Ingested by webhook-receiver</div>
-              </div>
-              <div>
-                <div style={{ fontWeight: 600, color: '#1a1f2c' }}>2. AI Root Cause Diagnosed</div>
-                <div style={{ color: '#8c98a9', fontSize: '11px' }}>Classified by failure-detector (95% confidence)</div>
-              </div>
-              <div>
-                <div style={{ fontWeight: 600, color: '#4263eb' }}>3. Guardrails Evaluated</div>
-                <div style={{ color: '#8c98a9', fontSize: '11px' }}>Max retries ok • Contact window ok • Cost cap ok</div>
-              </div>
             </div>
           </div>
         </div>
