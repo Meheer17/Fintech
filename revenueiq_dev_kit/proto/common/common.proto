@@ -1,0 +1,35 @@
+syntax = "proto3";
+package revenueiq.common;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/common;common_proto";
+
+import "google/protobuf/timestamp.proto";
+
+message StatusResponse {
+  bool success = 1;
+  string error_code = 2;
+  string error_message = 3;
+  string request_id = 4;
+}
+
+message Money {
+  int64 amount_paise = 1;    // Always in paise (₹100 = 10000 paise)
+  string currency = 2;       // "INR"
+}
+
+message PaginationRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message PaginationResponse {
+  int32 total = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  bool has_more = 4;
+}
+
+message TimeRange {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+}

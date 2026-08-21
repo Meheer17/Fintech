@@ -1,0 +1,145 @@
+syntax = "proto3";
+package revenueiq.failure;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/failure;failure_proto";
+
+import "google/protobuf/timestamp.proto";
+import "proto/common/common.proto";
+
+service FailureDetectorService {
+  rpc DiagnoseFailure(DiagnoseRequest) returns (DiagnosisResult);
+  rpc GetFailureById(GetFailureRequest) returns (FailureRecord);
+  rpc ListFailures(ListFailuresRequest) returns (ListFailuresResponse);
+  rpc GetFailureStats(StatsRequest) returns (FailureStats);
+  rpc DetectPatterns(PatternRequest) returns (PatternReport);
+}
+
+enum FailureCategory {
+  UNKNOWN = 0;
+  INSUFFICIENT_FUNDS = 1;
+  CARD_EXPIRED = 2;
+  BANK_DECLINE = 3;
+  NETWORK_ERROR = 4;
+  AUTHENTICATION_FAILED = 5;
+  FRAUD_SUSPECTED = 6;
+  INVALID_CARD = 7;
+  INTERNATIONAL_BLOCKED = 8;
+  LIMIT_EXCEEDED = 9;
+  SUBSCRIPTION_FAILED = 10;
+  MANDATE_FAILED = 11;
+  CHECKOUT_ABANDONED = 12;
+}
+
+enum RecoverySuggestion {
+  NO_SUGGESTION = 0;
+  RETRY_SAME_METHOD = 1;
+  RETRY_DIFFERENT_METHOD = 2;
+  SEND_PAYMENT_LINK = 3;
+  WAIT_AND_RETRY = 4;
+  CONTACT_CUSTOMER = 5;
+  ESCALATE_TO_HUMAN = 6;
+  DO_NOT_RETRY = 7;
+  RETRY_SUBSCRIPTION = 8;
+  UPDATE_CARD_LINK = 9;
+  RENEW_MANDATE = 10;
+  VOICE_RECOVERY = 11;
+  CHECKOUT_NUDGE = 12;
+}
+
+message DiagnoseRequest {
+  string request_id = 1;
+  string payment_id = 2;
+  string razorpay_error_code = 3;
+  string razorpay_error_description = 4;
+  string payment_method = 5;    // "upi", "card", "netbanking", "wallet"
+  revenueiq.common.Money amount = 6;
+  string customer_id = 7;
+  string merchant_id = 8;
+  string subscription_id = 9;
+  string mandate_id = 10;
+  string checkout_session_id = 11;
+}
+
+message DiagnosisResult {
+  revenueiq.common.StatusResponse status = 1;
+  string diagnosis_id = 2;
+  FailureCategory category = 3;
+  RecoverySuggestion suggestion = 4;
+  string root_cause = 5;           // Human-readable explanation
+  string ai_reasoning = 6;         // LLM's reasoning
+  float confidence = 7;            // 0.0 - 1.0
+  bool used_ai = 8;                // true if LLM was invoked
+  google.protobuf.Timestamp diagnosed_at = 9;
+}
+
+message FailureRecord {
+  string id = 1;
+  string payment_id = 2;
+  string razorpay_error_code = 3;
+  FailureCategory category = 4;
+  RecoverySuggestion suggestion = 5;
+  revenueiq.common.Money amount = 6;
+  string payment_method = 7;
+  string customer_id = 8;
+  string merchant_id = 9;
+  string root_cause = 10;
+  string recovery_status = 11;    // "PENDING" | "IN_PROGRESS" | "RECOVERED" | "FAILED" | "ABANDONED"
+  google.protobuf.Timestamp failed_at = 12;
+  google.protobuf.Timestamp diagnosed_at = 13;
+  string subscription_id = 14;
+  string mandate_id = 15;
+  string checkout_session_id = 16;
+}
+
+message GetFailureRequest {
+  string request_id = 1;
+  string failure_id = 2;
+}
+
+message ListFailuresRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  FailureCategory category = 3;
+  string recovery_status = 4;
+  revenueiq.common.TimeRange time_range = 5;
+  revenueiq.common.PaginationRequest pagination = 6;
+}
+
+message ListFailuresResponse {
+  revenueiq.common.StatusResponse status = 1;
+  repeated FailureRecord failures = 2;
+  revenueiq.common.PaginationResponse pagination = 3;
+}
+
+message StatsRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  revenueiq.common.TimeRange time_range = 3;
+}
+
+message FailureStats {
+  revenueiq.common.StatusResponse status = 1;
+  int32 total_failures = 2;
+  revenueiq.common.Money total_amount_at_risk = 3;
+  map<string, int32> by_category = 4;
+  map<string, int32> by_payment_method = 5;
+  map<string, int32> by_recovery_status = 6;
+}
+
+message PatternRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  revenueiq.common.TimeRange time_range = 3;
+}
+
+message PatternReport {
+  revenueiq.common.StatusResponse status = 1;
+  repeated Pattern patterns = 2;
+}
+
+message Pattern {
+  string pattern_type = 1;        // "BANK_OUTAGE", "TIME_CLUSTER", "METHOD_SPIKE"
+  string description = 2;
+  float significance = 3;         // Statistical significance 0-1
+  map<string, string> metadata = 4;
+}

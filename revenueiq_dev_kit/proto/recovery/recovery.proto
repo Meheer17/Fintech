@@ -1,0 +1,169 @@
+syntax = "proto3";
+package revenueiq.recovery;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/recovery;recovery_proto";
+
+import "google/protobuf/timestamp.proto";
+import "proto/common/common.proto";
+
+service RecoveryService {
+  rpc CreateWorkflow(CreateWorkflowRequest) returns (RecoveryWorkflow);
+  rpc ExecuteNextStep(ExecuteStepRequest) returns (StepResult);
+  rpc GetWorkflow(GetWorkflowRequest) returns (RecoveryWorkflow);
+  rpc ListWorkflows(ListWorkflowsRequest) returns (ListWorkflowsResponse);
+  rpc GetRecoveryStats(RecoveryStatsRequest) returns (RecoveryStats);
+  rpc CreatePromise(CreatePromiseRequest) returns (Promise);
+  rpc GetPromise(GetPromiseRequest) returns (Promise);
+  rpc ListPromises(ListPromisesRequest) returns (ListPromisesResponse);
+}
+
+enum RecoveryAction {
+  ACTION_UNKNOWN = 0;
+  ACTION_RETRY_PAYMENT = 1;
+  ACTION_CREATE_PAYMENT_LINK = 2;
+  ACTION_SEND_REMINDER_EMAIL = 3;
+  ACTION_WAIT_AND_RETRY = 4;
+  ACTION_ESCALATE_TO_HUMAN = 5;
+  ACTION_ABANDON = 6;
+  ACTION_RETRY_SUBSCRIPTION = 7;
+  ACTION_SEND_CARD_UPDATE_LINK = 8;
+  ACTION_RENEW_MANDATE = 9;
+  ACTION_VOICE_CALL = 10;
+  ACTION_CHECKOUT_NUDGE = 11;
+  ACTION_PROMISE_FOLLOW_UP = 12;
+}
+
+enum WorkflowStatus {
+  WF_CREATED = 0;
+  WF_IN_PROGRESS = 1;
+  WF_RECOVERED = 2;
+  WF_FAILED = 3;
+  WF_ABANDONED = 4;
+  WF_ESCALATED = 5;
+}
+
+message CreateWorkflowRequest {
+  string request_id = 1;
+  string failure_id = 2;
+  string payment_id = 3;
+  string diagnosis_id = 4;
+  string customer_id = 5;
+  string merchant_id = 6;
+  revenueiq.common.Money amount = 7;
+  string payment_method = 8;
+  string suggested_action = 9;
+}
+
+message RecoveryWorkflow {
+  revenueiq.common.StatusResponse status = 1;
+  string workflow_id = 2;
+  string failure_id = 3;
+  string payment_id = 4;
+  revenueiq.common.Money amount = 5;
+  WorkflowStatus workflow_status = 6;
+  repeated RecoveryStep steps = 7;
+  int32 retry_count = 8;
+  int32 contact_count = 9;
+  revenueiq.common.Money recovery_cost = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+  string recovered_payment_id = 13;
+}
+
+message RecoveryStep {
+  string step_id = 1;
+  RecoveryAction action = 2;
+  string status = 3;                  // "PENDING" | "EXECUTING" | "SUCCESS" | "FAILED" | "SKIPPED"
+  string result_detail = 4;
+  string ai_reasoning = 5;
+  map<string, string> metadata = 6;
+  google.protobuf.Timestamp executed_at = 7;
+  int32 duration_ms = 8;
+  repeated string guardrails_checked = 9;
+}
+
+message ExecuteStepRequest {
+  string request_id = 1;
+  string workflow_id = 2;
+}
+
+message StepResult {
+  revenueiq.common.StatusResponse status = 1;
+  RecoveryStep step = 2;
+  WorkflowStatus new_workflow_status = 3;
+  string next_action = 4;
+}
+
+message GetWorkflowRequest {
+  string request_id = 1;
+  string workflow_id = 2;
+}
+
+message ListWorkflowsRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  WorkflowStatus status = 3;
+  revenueiq.common.TimeRange time_range = 4;
+  revenueiq.common.PaginationRequest pagination = 5;
+}
+
+message ListWorkflowsResponse {
+  revenueiq.common.StatusResponse status = 1;
+  repeated RecoveryWorkflow workflows = 2;
+  revenueiq.common.PaginationResponse pagination = 3;
+}
+
+message RecoveryStatsRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  revenueiq.common.TimeRange time_range = 3;
+}
+
+message RecoveryStats {
+  revenueiq.common.StatusResponse status = 1;
+  revenueiq.common.Money total_at_risk = 2;
+  revenueiq.common.Money total_recovered = 3;
+  revenueiq.common.Money total_cost = 4;
+  float recovery_rate = 5;
+  int32 total_workflows = 6;
+  map<string, int32> by_status = 7;
+  map<string, int32> by_action = 8;
+  map<string, float> recovery_rate_by_method = 9;
+}
+
+message CreatePromiseRequest {
+  string request_id = 1;
+  string workflow_id = 2;
+  string customer_id = 3;
+  string merchant_id = 4;
+  revenueiq.common.Money amount = 5;
+  google.protobuf.Timestamp promised_date = 6;
+}
+
+message Promise {
+  revenueiq.common.StatusResponse status = 1;
+  string promise_id = 2;
+  string workflow_id = 3;
+  string customer_id = 4;
+  string merchant_id = 5;
+  revenueiq.common.Money amount = 6;
+  google.protobuf.Timestamp promised_date = 7;
+  string promise_status = 8; // "KEPT" | "BROKEN" | "PENDING"
+}
+
+message GetPromiseRequest {
+  string request_id = 1;
+  string promise_id = 2;
+}
+
+message ListPromisesRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  revenueiq.common.PaginationRequest pagination = 3;
+}
+
+message ListPromisesResponse {
+  revenueiq.common.StatusResponse status = 1;
+  repeated Promise promises = 2;
+  revenueiq.common.PaginationResponse pagination = 3;
+}

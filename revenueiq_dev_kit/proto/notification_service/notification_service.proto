@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package notification_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/notification_service;notification_proto";
+
+message EmailPayload {
+  string to_address = 1;
+  string subject = 2;
+  string body_html = 3;
+  string body_text = 4;
+}

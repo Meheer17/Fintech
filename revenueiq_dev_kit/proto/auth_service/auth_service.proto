@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package auth_service;
+
+import "proto/mongo_service/mongodb_service.proto";
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/auth_service;auth_proto";
+
+service AuthService {
+  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse);
+  rpc SendOTP (SendOTPRequest) returns (SendOTPResponse);
+  rpc VerifyOTP (VerifyOTPRequest) returns (VerifyOTPResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc RefreshTokens (RefreshTokensRequest) returns (RefreshTokensResponse);
+  rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse);
+  rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc Logout (LogoutRequest) returns (LogoutResponse);
+  rpc VerifyToken (VerifyTokenRequest) returns (VerifyTokenResponse);
+}
+
+message RegisterUserRequest {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  string password = 4;
+  string phone_number = 5;
+  int32 age = 6;
+}
+
+message RegisterUserResponse {
+  mongodb_service.User user = 1;
+}
+
+message SendOTPRequest {
+  string email = 1;
+  string phone_number = 2;
+}
+
+message SendOTPResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message VerifyOTPRequest {
+  string email = 1;
+  string phone_number = 2;
+  string code = 3;
+}
+
+message VerifyOTPResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  string message = 4;
+  mongodb_service.User user = 5;
+}
+
+message RefreshTokensRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokensResponse {
+  bool success = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message ForgotPasswordRequest {
+  string email = 1;
+}
+
+message ForgotPasswordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ResetPasswordRequest {
+  string email = 1;
+  string code = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+message VerifyTokenRequest {
+  string access_token = 1;
+}
+
+message VerifyTokenResponse {
+  bool success = 1;
+  string user_id = 2;
+  string email = 3;
+  string role = 4;
+  mongodb_service.User user = 5;
+}
+
+message OTPCode {
+  string code = 1;
+  int64 generated_at = 2;
+}

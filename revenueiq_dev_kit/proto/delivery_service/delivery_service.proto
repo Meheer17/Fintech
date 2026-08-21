@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package delivery_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/delivery_service;delivery_proto";
+
+service DeliveryService {
+  rpc ConfirmPickup (ConfirmPickupRequest) returns (DeliveryResponse);
+  rpc InitiateVerification (InitiateVerificationRequest) returns (VerificationResponse);
+  rpc VerifyOTP (VerifyOTPRequest) returns (DeliveryResponse);
+  rpc UploadPhotoProof (UploadPhotoRequest) returns (DeliveryResponse);
+  rpc RecordFailedDelivery (FailedDeliveryRequest) returns (DeliveryResponse);
+}
+
+message ConfirmPickupRequest {
+  string delivery_id = 1;
+  string order_id = 2;
+  string drone_id = 3;
+  bool package_locked = 4;
+  int64 timestamp = 5;
+}
+
+message InitiateVerificationRequest {
+  string delivery_id = 1;
+  string order_id = 2;
+  string customer_phone = 3;
+}
+
+message VerificationResponse {
+  bool success = 1;
+  string message = 2;
+  string delivery_id = 3;
+  int64 expires_at = 4;
+}
+
+message VerifyOTPRequest {
+  string delivery_id = 1;
+  string order_id = 2;
+  string otp = 3;
+}
+
+message UploadPhotoRequest {
+  string delivery_id = 1;
+  string order_id = 2;
+  string drone_id = 3;
+  bytes photo_bytes = 4;
+  string filename = 5;
+}
+
+message FailedDeliveryRequest {
+  string delivery_id = 1;
+  string order_id = 2;
+  string drone_id = 3;
+  string failure_reason = 4;
+}
+
+message DeliveryRecord {
+  string delivery_id = 1;
+  string order_id = 2;
+  string drone_id = 3;
+  string status = 4; // e.g. PICKUP_CONFIRMED, ARRIVED, VERIFIED, COMPLETED, FAILED
+  string photo_s3_key = 5;
+  string photo_url = 6;
+  string otp = 7;
+  bool otp_verified = 8;
+  string failure_reason = 9;
+  int64 created_at = 10;
+  int64 completed_at = 11;
+}
+
+message DeliveryResponse {
+  bool success = 1;
+  string message = 2;
+  DeliveryRecord record = 3;
+}

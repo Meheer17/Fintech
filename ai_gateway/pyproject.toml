@@ -1,0 +1,16 @@
+[project]
+name = "ai-gateway"
+version = "0.1.0"
+description = "RevenueIQ Master AI Gateway & Conversational Agent"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "grpcio>=1.62.0",
+    "protobuf>=4.25.0",
+    "strands-agents>=0.1.0",
+    "pydantic>=2.6.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

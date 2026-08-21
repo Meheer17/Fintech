@@ -1,0 +1,107 @@
+syntax = "proto3";
+package revenueiq.reconciliation;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/reconciliation;reconciliation_proto";
+
+import "google/protobuf/timestamp.proto";
+import "proto/common/common.proto";
+
+service ReconciliationService {
+  rpc RunReconciliation(ReconciliationRequest) returns (ReconciliationReport);
+  rpc GetReport(GetReportRequest) returns (ReconciliationReport);
+  rpc ListExceptions(ListExceptionsRequest) returns (ExceptionList);
+  rpc ResolveException(ResolveExceptionRequest) returns (revenueiq.common.StatusResponse);
+}
+
+enum MatchType {
+  MATCH_UNKNOWN = 0;
+  EXACT_MATCH = 1;
+  FUZZY_MATCH = 2;
+  AI_MATCH = 3;
+  UNMATCHED = 4;
+}
+
+enum ExceptionType {
+  EXC_UNKNOWN = 0;
+  AMOUNT_MISMATCH = 1;
+  MISSING_SETTLEMENT = 2;
+  MISSING_ORDER = 3;
+  DUPLICATE_SETTLEMENT = 4;
+  FEE_DISCREPANCY = 5;
+  TIMING_MISMATCH = 6;
+}
+
+message ReconciliationRequest {
+  string request_id = 1;
+  string merchant_id = 2;
+  revenueiq.common.TimeRange time_range = 3;
+}
+
+message ReconciliationReport {
+  revenueiq.common.StatusResponse status = 1;
+  string report_id = 2;
+  int32 total_records = 3;
+  int32 exact_matches = 4;
+  int32 fuzzy_matches = 5;
+  int32 ai_matches = 6;
+  int32 unmatched = 7;
+  float match_rate = 8;
+  revenueiq.common.Money total_settled = 9;
+  revenueiq.common.Money total_expected = 10;
+  revenueiq.common.Money discrepancy = 11;
+  repeated MatchRecord matches = 12;
+  google.protobuf.Timestamp run_at = 13;
+}
+
+message MatchRecord {
+  string id = 1;
+  string order_id = 2;
+  string payment_id = 3;
+  string settlement_id = 4;
+  revenueiq.common.Money order_amount = 5;
+  revenueiq.common.Money payment_amount = 6;
+  revenueiq.common.Money settled_amount = 7;
+  MatchType match_type = 8;
+  float confidence = 9;
+  string notes = 10;
+}
+
+message GetReportRequest {
+  string request_id = 1;
+  string report_id = 2;
+}
+
+message ListExceptionsRequest {
+  string request_id = 1;
+  string report_id = 2;
+  ExceptionType exception_type = 3;
+  revenueiq.common.PaginationRequest pagination = 4;
+}
+
+message ExceptionList {
+  revenueiq.common.StatusResponse status = 1;
+  repeated ExceptionRecord exceptions = 2;
+  revenueiq.common.PaginationResponse pagination = 3;
+}
+
+message ExceptionRecord {
+  string id = 1;
+  ExceptionType type = 2;
+  string description = 3;
+  string order_id = 4;
+  string payment_id = 5;
+  string settlement_id = 6;
+  revenueiq.common.Money expected_amount = 7;
+  revenueiq.common.Money actual_amount = 8;
+  string ai_suggestion = 9;
+  string resolution_status = 10;   // "OPEN" | "RESOLVED" | "IGNORED"
+  string resolved_by = 11;
+  google.protobuf.Timestamp resolved_at = 12;
+}
+
+message ResolveExceptionRequest {
+  string request_id = 1;
+  string exception_id = 2;
+  string resolution = 3;           // "ACCEPT_AI_SUGGESTION" | "MANUAL_MATCH" | "IGNORE"
+  string notes = 4;
+}

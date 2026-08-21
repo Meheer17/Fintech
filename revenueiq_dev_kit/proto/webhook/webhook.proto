@@ -1,0 +1,41 @@
+syntax = "proto3";
+package revenueiq.webhook;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/webhook;webhook_proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "proto/common/common.proto";
+
+service WebhookService {
+  rpc GetWebhookEvent(GetEventRequest) returns (WebhookEvent);
+  rpc ListWebhookEvents(ListEventsRequest) returns (ListEventsResponse);
+}
+
+message WebhookEvent {
+  string id = 1;
+  string razorpay_event_id = 2;
+  string event_type = 3;          // "payment.failed", "payment.captured", etc.
+  google.protobuf.Struct payload = 4;
+  google.protobuf.Timestamp received_at = 5;
+  string signature_valid = 6;     // "VALID" | "INVALID" | "SKIPPED"
+  string processing_status = 7;   // "RECEIVED" | "PROCESSING" | "PROCESSED" | "FAILED"
+}
+
+message GetEventRequest {
+  string request_id = 1;
+  string event_id = 2;
+}
+
+message ListEventsRequest {
+  string request_id = 1;
+  string event_type = 2;
+  revenueiq.common.TimeRange time_range = 3;
+  revenueiq.common.PaginationRequest pagination = 4;
+}
+
+message ListEventsResponse {
+  revenueiq.common.StatusResponse status = 1;
+  repeated WebhookEvent events = 2;
+  revenueiq.common.PaginationResponse pagination = 3;
+}

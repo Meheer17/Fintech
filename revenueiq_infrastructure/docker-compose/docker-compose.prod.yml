@@ -1,0 +1,158 @@
+services:
+  # Envoy Proxy (Public Gateway)
+  envoy:
+    image: envoyproxy/envoy:v1.30.1
+    container_name: envoy-gateway-prod
+    ports:
+      - "${GATEWAY_SERVICE_PORT:-80}:80"
+      - "${GATEWAY_HTTPS_SERVICE_PORT:-443}:443"
+    volumes:
+      - ${ENVOY_PATH:-../envoy}:/etc/envoy:ro
+      - /etc/letsencrypt/archive/testing.dineandbites.com/fullchain1.pem:/etc/envoy/certs/tls.crt:ro
+      - /etc/letsencrypt/archive/testing.dineandbites.com/privkey1.pem:/etc/envoy/certs/tls.key:ro
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+    restart: always
+
+  # Auth Service (gRPC + Gin HTTP)
+  auth-service:
+    image: ghcr.io/${OWNER:-revenueiqdynamics26}/auth-service:${IMAGE_TAG:-latest}
+    container_name: auth-service-prod
+    environment:
+      - PORT=${AUTH_SERVICE_PORT:-50053}
+      - HTTP_PORT=8081
+      - MONGO_SERVICE_ADDR=mongodb-service:50051
+      - REDIS_SERVICE_ADDR=redis-service:50052
+      - JWT_SECRET=${JWT_SECRET}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50053"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongodb-service:
+        condition: service_healthy
+      redis-service:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: always
+
+  # MongoDB Service Wrapper (gRPC)
+  mongodb-service:
+    image: ghcr.io/${OWNER:-revenueiqdynamics26}/mongodb-service:${IMAGE_TAG:-latest}
+    container_name: mongodb-service-prod
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-mongodb_service_db}
+      - MONGO_COLLECTION=${MONGO_COLLECTION:-users}
+      - PORT=${MONGODB_SERVICE_PORT:-50051}
+      - REDIS_CACHE_ADDR=redis-service:50052
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis-service:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: always
+
+  # Redis Service Wrapper (gRPC)
+  redis-service:
+    image: ghcr.io/${OWNER:-revenueiqdynamics26}/redis-service:${IMAGE_TAG:-latest}
+    container_name: redis-service-prod
+    environment:
+      - REDIS_ADDR=${REDIS_ADDR:-redis:6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=${REDIS_DB:-0}
+      - PORT=${REDIS_SERVICE_PORT:-50052}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50052"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: always
+
+  # MongoDB Instance (Database) - completely isolated, no ports exposed to host
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb-database-prod
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+    restart: always
+
+  # Redis Instance (Database) - completely isolated, no ports exposed to host
+  redis:
+    image: redis:8.0-alpine
+    container_name: redis-database-prod
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+    restart: always
+
+  # S3 Service wrapper (gRPC)
+  s3-service:
+    image: ghcr.io/${OWNER:-revenueiqdynamics26}/s3-service:${IMAGE_TAG:-latest}
+    container_name: s3-service-prod
+    environment:
+      - PORT=${S3_SERVICE_PORT:-50055}
+      - AWS_ENDPOINT=${AWS_S3_ENDPOINT}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-revenueiq-storage}
+      - AWS_S3_FORCE_PATH_STYLE=${AWS_S3_FORCE_PATH_STYLE:-false}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50055"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - backend
+    restart: always
+
+volumes:
+  mongodb-data:
+    name: mongodb-data-prod
+  redis-data:
+    name: redis-data-prod
+
+networks:
+  frontend:
+  backend:
+    internal: true
+

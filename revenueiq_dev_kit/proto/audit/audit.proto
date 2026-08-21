@@ -1,0 +1,60 @@
+syntax = "proto3";
+package revenueiq.audit;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/audit;audit_proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "proto/common/common.proto";
+
+service AuditService {
+  rpc LogAction(LogActionRequest) returns (LogActionResponse);
+  rpc GetAuditTrail(GetAuditTrailRequest) returns (GetAuditTrailResponse);
+  rpc GetActionsByEntity(GetEntityActionsRequest) returns (GetAuditTrailResponse);
+}
+
+message AuditEntry {
+  string id = 1;
+  string service_name = 2;
+  string action = 3;
+  string entity_type = 4;
+  string entity_id = 5;
+  string actor = 6;
+  google.protobuf.Struct input_data = 7;
+  google.protobuf.Struct output_data = 8;
+  string reasoning = 9;
+  repeated string guardrails_checked = 10;
+  int32 duration_ms = 11;
+  string status = 12; // "SUCCESS" | "FAILED" | "BLOCKED"
+  google.protobuf.Timestamp timestamp = 13;
+}
+
+message LogActionRequest {
+  string request_id = 1;
+  AuditEntry entry = 2;
+}
+
+message LogActionResponse {
+  revenueiq.common.StatusResponse status = 1;
+  string audit_id = 2;
+}
+
+message GetAuditTrailRequest {
+  string request_id = 1;
+  string service_name = 2;
+  revenueiq.common.TimeRange time_range = 3;
+  revenueiq.common.PaginationRequest pagination = 4;
+}
+
+message GetEntityActionsRequest {
+  string request_id = 1;
+  string entity_type = 2;
+  string entity_id = 3;
+  revenueiq.common.PaginationRequest pagination = 4;
+}
+
+message GetAuditTrailResponse {
+  revenueiq.common.StatusResponse status = 1;
+  repeated AuditEntry entries = 2;
+  revenueiq.common.PaginationResponse pagination = 3;
+}

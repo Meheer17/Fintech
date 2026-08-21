@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package queue_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/queue_service;queue_proto";
+
+service QueueService {
+  rpc PublishEvent (PublishEventRequest) returns (PublishEventResponse);
+}
+
+message PublishEventRequest {
+  string topic = 1;   // Must match a topic defined in revenueiq_dev_kit, e.g. "EMAIL"
+  string type = 2;    // Flexible type for within the service, e.g. "signup"
+  string data_id = 3; // The key under which relevant data is stored in Redis
+}
+
+message PublishEventResponse {
+  bool success = 1;
+  string message = 2;
+}

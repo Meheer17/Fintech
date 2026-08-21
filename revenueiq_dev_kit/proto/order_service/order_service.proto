@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package order_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/order_service;order_proto";
+
+service OrderService {
+  rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
+  rpc CancelOrder (CancelOrderRequest) returns (OrderResponse);
+  rpc GetOrder (GetOrderRequest) returns (OrderResponse);
+  rpc ListOrders (ListOrdersRequest) returns (ListOrdersResponse);
+  rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (OrderResponse);
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  string zip_code = 4;
+  string country = 5;
+  double latitude = 6;
+  double longitude = 7;
+}
+
+message PickupDetails {
+  string sender_name = 1;
+  string contact_phone = 2;
+  Address address = 3;
+  int64 pickup_time = 4;
+  string instructions = 5;
+}
+
+message OrderHistoryItem {
+  string status = 1;
+  int64 timestamp = 2;
+  string note = 3;
+}
+
+message Order {
+  string order_id = 1;
+  string customer_id = 2;
+  repeated string items = 3;
+  double total_amount = 4;
+  Address delivery_address = 5;
+  PickupDetails pickup_details = 6;
+  string status = 7; // CREATED, ASSIGNED, DISPATCHED, DELIVERING, COMPLETED, CANCELLED
+  string assigned_drone_id = 8;
+  repeated OrderHistoryItem history = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+}
+
+message CreateOrderRequest {
+  string customer_id = 1;
+  repeated string items = 2;
+  double total_amount = 3;
+  Address delivery_address = 4;
+  PickupDetails pickup_details = 5;
+}
+
+message CancelOrderRequest {
+  string order_id = 1;
+  string reason = 2;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+}
+
+message ListOrdersRequest {
+  string customer_id = 1;
+  string status = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message UpdateOrderStatusRequest {
+  string order_id = 1;
+  string status = 2;
+  string assigned_drone_id = 3;
+  string note = 4;
+}
+
+message OrderResponse {
+  bool success = 1;
+  string message = 2;
+  Order order = 3;
+}

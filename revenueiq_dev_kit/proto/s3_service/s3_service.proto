@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package s3_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/s3_service;proto";
+
+service S3Service {
+  // Uploads a file/object using client-side streaming.
+  // Can be used for both single files and continuous IoT/live streams.
+  rpc Upload(stream UploadRequest) returns (UploadResponse);
+
+  // Unary upload for smaller payloads (up to the configured connection limit, e.g., 25MB).
+  rpc UploadUnary(UploadUnaryRequest) returns (UploadResponse);
+}
+
+message UploadRequest {
+  oneof payload {
+    UploadMetadata metadata = 1;
+    bytes chunk_data = 2;
+  }
+}
+
+message UploadMetadata {
+  string bucket = 1;         // Target S3 bucket (optional, has default)
+  string folder = 2;         // Target folder/prefix (e.g. "my-iot-device-12")
+  string filename = 3;       // File name (optional, if empty a UUID/timestamp-based name is generated)
+  string content_type = 4;   // Optional mime-type
+  bool is_stream = 5;        // If true, indicates this is an ongoing stream of IoT data
+}
+
+message UploadUnaryRequest {
+  UploadMetadata metadata = 1;
+  bytes data = 2;
+}
+
+message UploadResponse {
+  string id = 1;            // Generated unique ID or the S3 key
+  string key = 2;           // The S3 object key (e.g., folder/filename)
+  string bucket = 3;        // Bucket used
+  int64 size = 4;           // Size of the uploaded content in bytes
+}

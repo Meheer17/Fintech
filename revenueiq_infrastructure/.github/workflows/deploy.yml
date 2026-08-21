@@ -1,0 +1,107 @@
+name: CD - Deploy to EC2
+
+on:
+  workflow_run:
+    workflows: ["CI - Build and Push"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      deploy_mode:
+        description: 'Deployment Mode (docker-compose or kubernetes)'
+        required: true
+        default: 'docker-compose'
+        type: choice
+        options:
+          - docker-compose
+          - kubernetes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout revenueiq-infrastructure
+        uses: actions/checkout@v4
+
+      - name: Set Deployment Mode
+        run: |
+          # Use manual input if dispatch, else default to vars.DEPLOY_MODE or 'docker-compose'
+          DEPLOY_MODE="${{ github.event.inputs.deploy_mode }}"
+          if [ -z "$DEPLOY_MODE" ]; then
+            DEPLOY_MODE="${{ vars.DEPLOY_MODE }}"
+          fi
+          if [ -z "$DEPLOY_MODE" ]; then
+            DEPLOY_MODE="docker-compose"
+          fi
+          echo "DEPLOY_MODE=$DEPLOY_MODE" >> $GITHUB_ENV
+
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      # === DOCKER COMPOSE DEPLOYMENT ===
+      - name: Deploy via Docker Compose
+        if: ${{ env.DEPLOY_MODE == 'docker-compose' }}
+        run: |
+          # Sync directories
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/revenueiq-app/docker-compose ~/revenueiq-app/envoy"
+          scp docker-compose/docker-compose.prod.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/revenueiq-app/docker-compose/docker-compose.prod.yml
+          scp envoy/envoy.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/revenueiq-app/envoy/envoy.yaml
+          
+          # Remote commands: Create .env, pull latest images, and run docker compose
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            cd ~/revenueiq-app
+            echo 'IMAGE_TAG=${{ github.sha }}' > docker-compose/docker.env
+            echo 'JWT_SECRET=${{ secrets.JWT_SECRET }}' >> docker-compose/docker.env
+            echo 'MONGO_URI=${{ secrets.MONGO_URI }}' >> docker-compose/docker.env
+            
+            # Run docker compose
+            docker compose -f docker-compose/docker-compose.prod.yml --env-file docker-compose/docker.env pull
+            docker compose -f docker-compose/docker-compose.prod.yml --env-file docker-compose/docker.env up -d --remove-orphans
+          "
+
+      # === KUBERNETES DEPLOYMENT ===
+      - name: Prepare Kubernetes Manifests
+        if: ${{ env.DEPLOY_MODE == 'kubernetes' }}
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          export OWNER_LOWER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          mkdir -p deploy-k8s
+          cp k8s/* deploy-k8s/
+          
+          # Replace placeholder variables using envsubst
+          for file in deploy-k8s/*; do
+            if [ -f "$file" ]; then
+              envsubst < "$file" > temp && mv temp "$file"
+            fi
+          done
+
+      - name: Deploy via Kubernetes
+        if: ${{ env.DEPLOY_MODE == 'kubernetes' }}
+        run: |
+          # Copy manifests to host
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/revenueiq-app/k8s"
+          scp deploy-k8s/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/revenueiq-app/k8s/
+          
+          # Remote commands: Apply namespace first, then secrets, then all manifests, and rollout restart
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            # Apply namespace
+            kubectl apply -f ~/revenueiq-app/k8s/namespace.yaml
+            
+            # Apply all configs and deployments
+            kubectl apply -f ~/revenueiq-app/k8s/
+            
+            # Smooth zero downtime rollout restart
+            kubectl rollout restart deployment/auth-service -n revenueiq-system
+            kubectl rollout restart deployment/mongodb-service -n revenueiq-system
+            kubectl rollout restart deployment/redis-service -n revenueiq-system
+            kubectl rollout restart deployment/envoy-gateway -n revenueiq-system
+          "

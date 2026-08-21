@@ -1,0 +1,599 @@
+syntax = "proto3";
+
+package mongodb_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/mongo_service;proto";
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+  rpc GetUserByEmail (GetUserByEmailRequest) returns (GetUserByEmailResponse);
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+  rpc QueryUsers (QueryUsersRequest) returns (QueryUsersResponse);
+}
+
+service OrderMongoService {
+  rpc CreateOrder (CreateMongoOrderRequest) returns (MongoOrderResponse);
+  rpc GetOrder (GetMongoOrderRequest) returns (MongoOrderResponse);
+  rpc UpdateOrderStatus (UpdateMongoOrderStatusRequest) returns (MongoOrderResponse);
+  rpc ListOrders (ListMongoOrdersRequest) returns (ListMongoOrdersResponse);
+}
+
+service DroneMongoService {
+  rpc RegisterDrone (RegisterMongoDroneRequest) returns (MongoDroneResponse);
+  rpc GetDrone (GetMongoDroneRequest) returns (MongoDroneResponse);
+  rpc UpdateDroneStatus (UpdateMongoDroneStatusRequest) returns (MongoDroneResponse);
+  rpc FindAvailableDrone (FindAvailableDroneRequest) returns (MongoDroneResponse);
+  rpc ReserveDrone (ReserveMongoDroneRequest) returns (MongoDroneResponse);
+  rpc AssignDrone (AssignMongoDroneRequest) returns (MongoDroneResponse);
+  rpc ListDrones (ListMongoDronesRequest) returns (ListMongoDronesResponse);
+}
+
+service FlightMongoService {
+  rpc AddNoFlyZone (AddMongoNoFlyZoneRequest) returns (MongoNoFlyZoneResponse);
+  rpc GetNoFlyZones (GetMongoNoFlyZonesRequest) returns (ListMongoNoFlyZonesResponse);
+}
+
+service OperationsMongoService {
+  rpc RegisterStation (RegisterMongoStationRequest) returns (MongoStationResponse);
+  rpc GetStations (GetMongoStationsRequest) returns (ListMongoStationsResponse);
+  rpc SaveMaintenance (SaveMongoMaintenanceRequest) returns (MongoMaintenanceResponse);
+}
+
+service DeliveryMongoService {
+  rpc SaveDelivery (SaveMongoDeliveryRequest) returns (MongoDeliveryResponse);
+  rpc GetDelivery (GetMongoDeliveryRequest) returns (MongoDeliveryResponse);
+}
+
+service PaymentMongoService {
+  rpc SaveTransaction (SaveMongoTxRequest) returns (MongoTxResponse);
+  rpc GetUserWallet (GetUserWalletRequest) returns (MongoWalletResponse);
+  rpc UpdateUserWallet (UpdateUserWalletRequest) returns (MongoWalletResponse);
+  rpc ListUserTransactions (ListUserTxRequest) returns (ListUserTxResponse);
+}
+
+service WarehouseMongoService {
+  rpc SaveBusiness (SaveMongoBusinessRequest) returns (MongoBusinessResponse);
+  rpc SaveWarehouse (SaveMongoWarehouseRequest) returns (MongoWarehouseResponse);
+  rpc SaveInventory (SaveMongoInventoryRequest) returns (MongoInventoryResponse);
+  rpc GetInventory (GetMongoInventoryRequest) returns (ListMongoInventoryResponse);
+}
+
+service AnalyticsMongoService {
+  rpc SaveAnalyticsSnapshot (SaveAnalyticsSnapshotRequest) returns (MongoAnalyticsResponse);
+  rpc GetLatestAnalyticsSnapshot (GetAnalyticsSnapshotRequest) returns (MongoAnalyticsSnapshotData);
+  rpc SaveFailureEvent (SaveFailureEventRequest) returns (MongoAnalyticsResponse);
+  rpc ListFailureEvents (ListFailureEventsRequest) returns (ListFailureEventsResponse);
+}
+
+
+
+
+// User Messages
+message User {
+  string id = 1; // Maps to MongoDB ObjectID string
+  string first_name = 2;
+  string last_name = 3;
+  string name = 4;
+  string email = 5;
+  int32 age = 6;
+  string password = 7;
+  string role = 8;
+  string phone_number = 9;
+  bool email_verified = 10;
+  bool phone_verified = 11;
+  bool active = 12;
+  int64 created_at = 13;
+  int64 updated_at = 14;
+  int64 last_login_at = 15;
+}
+
+message CreateUserRequest {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  int32 age = 4;
+  string password = 5;
+  string role = 6;
+  string phone_number = 7;
+  bool email_verified = 8;
+  bool phone_verified = 9;
+  bool active = 10;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  optional string first_name = 2;
+  optional string last_name = 3;
+  optional string email = 4;
+  optional int32 age = 5;
+  optional string password = 6;
+  optional string role = 7;
+  optional string phone_number = 8;
+  optional bool email_verified = 9;
+  optional bool phone_verified = 10;
+  optional bool active = 11;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+}
+
+message QueryUsersRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+  bool active = 4;
+  map<string, string> filters = 5;
+}
+
+message QueryUsersResponse {
+  repeated User users = 1;
+  int32 total_count = 2;
+  int32 total_pages = 3;
+  int32 current_page = 4;
+}
+
+// Order Messages
+message AddressData {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  string zip_code = 4;
+  string country = 5;
+  double latitude = 6;
+  double longitude = 7;
+}
+
+message PickupDetailsData {
+  string sender_name = 1;
+  string contact_phone = 2;
+  AddressData address = 3;
+  int64 pickup_time = 4;
+  string instructions = 5;
+}
+
+message OrderHistoryData {
+  string status = 1;
+  int64 timestamp = 2;
+  string note = 3;
+}
+
+message OrderData {
+  string order_id = 1;
+  string customer_id = 2;
+  repeated string items = 3;
+  double total_amount = 4;
+  AddressData delivery_address = 5;
+  PickupDetailsData pickup_details = 6;
+  string status = 7;
+  string assigned_drone_id = 8;
+  repeated OrderHistoryData history = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+}
+
+message CreateMongoOrderRequest {
+  OrderData order = 1;
+}
+
+message GetMongoOrderRequest {
+  string order_id = 1;
+}
+
+message UpdateMongoOrderStatusRequest {
+  string order_id = 1;
+  string status = 2;
+  string assigned_drone_id = 3;
+  string note = 4;
+}
+
+message ListMongoOrdersRequest {
+  string customer_id = 1;
+  string status = 2;
+  int32 limit = 3;
+}
+
+message ListMongoOrdersResponse {
+  repeated OrderData orders = 1;
+  int32 total_count = 2;
+}
+
+message MongoOrderResponse {
+  bool success = 1;
+  string message = 2;
+  OrderData order = 3;
+}
+
+// Drone Messages
+message LocationData {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message DroneData {
+  string drone_id = 1;
+  string model = 2;
+  string status = 3;
+  double battery_level = 4;
+  double payload_capacity_kg = 5;
+  LocationData current_location = 6;
+  string current_order_id = 7;
+  int64 registered_at = 8;
+  int64 last_updated_at = 9;
+}
+
+message RegisterMongoDroneRequest {
+  DroneData drone = 1;
+}
+
+message GetMongoDroneRequest {
+  string drone_id = 1;
+}
+
+message UpdateMongoDroneStatusRequest {
+  string drone_id = 1;
+  string status = 2;
+  double battery_level = 3;
+  LocationData location = 4;
+  string current_order_id = 5;
+}
+
+message FindAvailableDroneRequest {
+  double min_battery = 1;
+}
+
+message ReserveMongoDroneRequest {
+  string drone_id = 1;
+  string order_id = 2;
+}
+
+message AssignMongoDroneRequest {
+  string drone_id = 1;
+  string order_id = 2;
+}
+
+message ListMongoDronesRequest {
+  string status = 1;
+  double min_battery = 2;
+  int32 limit = 3;
+}
+
+message ListMongoDronesResponse {
+  repeated DroneData drones = 1;
+  int32 total_count = 2;
+}
+
+message MongoDroneResponse {
+  bool success = 1;
+  string message = 2;
+  DroneData drone = 3;
+}
+
+// Flight / No-Fly Zone Messages
+message NoFlyZoneData {
+  string id = 1;
+  string name = 2;
+  double center_lat = 3;
+  double center_lng = 4;
+  double radius_meters = 5;
+  double min_altitude = 6;
+  double max_altitude = 7;
+  bool active = 8;
+  string reason = 9;
+  int64 created_at = 10;
+}
+
+message AddMongoNoFlyZoneRequest {
+  NoFlyZoneData zone = 1;
+}
+
+message GetMongoNoFlyZonesRequest {
+  bool active_only = 1;
+}
+
+message MongoNoFlyZoneResponse {
+  bool success = 1;
+  string message = 2;
+  NoFlyZoneData zone = 3;
+}
+
+message ListMongoNoFlyZonesResponse {
+  repeated NoFlyZoneData zones = 1;
+  int32 total_count = 2;
+}
+
+// Operations Mongo Messages
+message StationData {
+  string station_id = 1;
+  string name = 2;
+  double latitude = 3;
+  double longitude = 4;
+  int32 total_pads = 5;
+  int32 occupied_pads = 6;
+  string status = 7;
+  repeated string parked_drone_ids = 8;
+  int64 updated_at = 9;
+}
+
+message RegisterMongoStationRequest {
+  StationData station = 1;
+}
+
+message MongoStationResponse {
+  bool success = 1;
+  string message = 2;
+  StationData station = 3;
+}
+
+message GetMongoStationsRequest {
+  string status = 1;
+}
+
+message ListMongoStationsResponse {
+  repeated StationData stations = 1;
+  int32 total_count = 2;
+}
+
+message MaintenanceData {
+  string record_id = 1;
+  string drone_id = 2;
+  string issue_description = 3;
+  string maintenance_type = 4;
+  string status = 5;
+  string assigned_technician = 6;
+  int64 scheduled_at = 7;
+  int64 completed_at = 8;
+  string notes = 9;
+}
+
+message SaveMongoMaintenanceRequest {
+  MaintenanceData record = 1;
+}
+
+message MongoMaintenanceResponse {
+  bool success = 1;
+  string message = 2;
+  MaintenanceData record = 3;
+}
+
+// Delivery Mongo Messages
+message MongoDeliveryData {
+  string delivery_id = 1;
+  string order_id = 2;
+  string drone_id = 3;
+  string status = 4;
+  string photo_s3_key = 5;
+  string photo_url = 6;
+  string otp = 7;
+  bool otp_verified = 8;
+  string failure_reason = 9;
+  int64 created_at = 10;
+  int64 completed_at = 11;
+}
+
+message SaveMongoDeliveryRequest {
+  MongoDeliveryData delivery = 1;
+}
+
+message GetMongoDeliveryRequest {
+  string delivery_id = 1;
+  string order_id = 2;
+}
+
+message MongoDeliveryResponse {
+  bool success = 1;
+  string message = 2;
+  MongoDeliveryData delivery = 3;
+}
+
+// Payment Mongo Messages
+message MongoTxData {
+  string transaction_id = 1;
+  string order_id = 2;
+  string user_id = 3;
+  double amount = 4;
+  string currency = 5;
+  string type = 6;
+  string status = 7;
+  string payment_method = 8;
+  string razorpay_payment_id = 9;
+  string razorpay_order_id = 10;
+  string razorpay_refund_id = 11;
+  int64 timestamp = 12;
+}
+
+message SaveMongoTxRequest {
+  MongoTxData transaction = 1;
+}
+
+message MongoTxResponse {
+  bool success = 1;
+  string message = 2;
+  MongoTxData transaction = 3;
+}
+
+message GetUserWalletRequest {
+  string user_id = 1;
+}
+
+message UpdateUserWalletRequest {
+  string user_id = 1;
+  double delta_amount = 2;
+}
+
+message MongoWalletResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+  double balance = 4;
+  string currency = 5;
+  int64 updated_at = 6;
+}
+
+message ListUserTxRequest {
+  string user_id = 1;
+  int32 limit = 2;
+}
+
+message ListUserTxResponse {
+  repeated MongoTxData transactions = 1;
+  int32 total_count = 2;
+}
+
+// Warehouse Mongo Messages
+message BusinessData {
+  string business_id = 1;
+  string name = 2;
+  string owner_email = 3;
+  string category = 4;
+  int64 registered_at = 5;
+}
+
+message SaveMongoBusinessRequest {
+  BusinessData business = 1;
+}
+
+message MongoBusinessResponse {
+  bool success = 1;
+  string message = 2;
+  BusinessData business = 3;
+}
+
+message WarehouseData {
+  string warehouse_id = 1;
+  string business_id = 2;
+  string name = 3;
+  string address = 4;
+  double latitude = 5;
+  double longitude = 6;
+  int64 registered_at = 7;
+}
+
+message SaveMongoWarehouseRequest {
+  WarehouseData warehouse = 1;
+}
+
+message MongoWarehouseResponse {
+  bool success = 1;
+  string message = 2;
+  WarehouseData warehouse = 3;
+}
+
+message MongoInventoryData {
+  string sku = 1;
+  string business_id = 2;
+  string warehouse_id = 3;
+  string name = 4;
+  string description = 5;
+  int32 quantity = 6;
+  double weight_kg = 7;
+  double length_cm = 8;
+  double width_cm = 9;
+  double height_cm = 10;
+  string image_url = 11;
+  string image_s3_key = 12;
+  int64 updated_at = 13;
+}
+
+message SaveMongoInventoryRequest {
+  MongoInventoryData item = 1;
+}
+
+message MongoInventoryResponse {
+  bool success = 1;
+  string message = 2;
+  MongoInventoryData item = 3;
+}
+
+message GetMongoInventoryRequest {
+  string business_id = 1;
+  string warehouse_id = 2;
+  string sku = 3;
+}
+
+message ListMongoInventoryResponse {
+  repeated MongoInventoryData items = 1;
+  int32 total_count = 2;
+}
+
+// Analytics Mongo Messages
+message MongoAnalyticsSnapshotData {
+  int64 timestamp = 1;
+  int32 total_drones = 2;
+  int32 active_drones = 3;
+  int32 maintenance_drones = 4;
+  double avg_battery_drain = 5;
+  int64 total_orders = 6;
+  int64 completed_orders = 7;
+  int64 failed_orders = 8;
+  double delivery_success_rate = 9;
+  double total_revenue = 10;
+}
+
+message SaveAnalyticsSnapshotRequest {
+  MongoAnalyticsSnapshotData snapshot = 1;
+}
+
+message GetAnalyticsSnapshotRequest {
+  string time_window = 1;
+}
+
+message MongoAnalyticsResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message MongoFailureEventData {
+  string event_id = 1;
+  string category = 2;
+  string service_name = 3;
+  string description = 4;
+  int64 timestamp = 5;
+}
+
+message SaveFailureEventRequest {
+  MongoFailureEventData event = 1;
+}
+
+message ListFailureEventsRequest {
+  string category = 1;
+  int32 limit = 2;
+}
+
+message ListFailureEventsResponse {
+  repeated MongoFailureEventData events = 1;
+  int32 total_count = 2;
+}
+
+
+

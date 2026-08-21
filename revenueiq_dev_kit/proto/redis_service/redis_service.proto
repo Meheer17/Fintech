@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package redis_service;
+
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/redis_service;redis_proto";
+
+service RedisCacheService {
+  rpc Set (SetRequest) returns (SetResponse);
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+  rpc InvalidateNamespace (InvalidateNamespaceRequest) returns (InvalidateNamespaceResponse);
+}
+
+// CacheItem represents the envelope stored in the Redis cache.
+// It wraps the raw value with metadata like namespace and timing.
+message CacheItem {
+  google.protobuf.Any value = 1;
+  string namespace = 2;
+  int64 created_at = 3;  // Unix timestamp (seconds)
+  int64 expires_at = 4;  // Unix timestamp (seconds), 0 means no expiration
+}
+
+message SetRequest {
+  string key = 1;
+  google.protobuf.Any value = 2;
+  int64 ttl_seconds = 3; // 0 or negative means no expiration
+  string namespace = 4;  // Optional namespace to segment cache
+}
+
+message SetResponse {
+  bool success = 1;
+}
+
+message GetRequest {
+  string key = 1;
+  string namespace = 2;  // Optional namespace to search in
+}
+
+message GetResponse {
+  google.protobuf.Any value = 1;
+  bool found = 2;
+  CacheItem item = 3;    // Returns the full envelope containing metadata
+}
+
+message DeleteRequest {
+  string key = 1;
+  string namespace = 2;  // Optional namespace
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message InvalidateNamespaceRequest {
+  string namespace = 1;  // The namespace to invalidate/clear
+}
+
+message InvalidateNamespaceResponse {
+  int64 invalidated_count = 1; // Number of keys removed
+}

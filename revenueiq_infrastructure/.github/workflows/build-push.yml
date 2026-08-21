@@ -1,0 +1,144 @@
+name: CI - Build and Push
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout revenueiq-infrastructure
+        uses: actions/checkout@v4
+
+      - name: Checkout auth_service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/auth_service
+          path: auth_service
+
+      - name: Checkout mongodb_service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/mongodb_service
+          path: mongodb_service
+
+      - name: Checkout redis_service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/redis_service
+          path: redis_service
+
+      - name: Checkout revenueiq_dev_kit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/revenueiq_dev_kit
+          path: revenueiq_dev_kit
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Downcase Owner Name
+        id: owner
+        run: echo "owner_lower=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      # Build & Push auth-service
+      - name: Build and Push auth-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: auth_service/Dockerfile
+          target: prod
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.owner_lower }}/auth-service:latest
+            ghcr.io/${{ steps.owner.outputs.owner_lower }}/auth-service:${{ github.sha }}
+
+      # Build & Push mongodb-service
+      - name: Build and Push mongodb-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mongodb_service/Dockerfile
+          target: prod
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.owner_lower }}/mongodb-service:latest
+            ghcr.io/${{ steps.owner.outputs.owner_lower }}/mongodb-service:${{ github.sha }}
+
+      # Build & Push redis-service
+      - name: Build and Push redis-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: redis_service/Dockerfile
+          target: prod
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.owner_lower }}/redis-service:latest
+            ghcr.io/${{ steps.owner.outputs.owner_lower }}/redis-service:${{ github.sha }}
+
+      # Clean Up Old Package Versions in GHCR (Keep only latest 2 tags)
+      - name: Clean up old GHCR package versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SERVICES=("auth-service" "mongodb-service" "redis-service")
+          OWNER="${{ github.repository_owner }}"
+          OWNER_LOWER="${{ steps.owner.outputs.owner_lower }}"
+          
+          OWNER_TYPE=$(gh api "/users/${OWNER}" --jq '.type')
+          echo "Owner Type: $OWNER_TYPE"
+          
+          for SERVICE in "${SERVICES[@]}"; do
+            echo "Cleaning up versions for $SERVICE..."
+            
+            if [ "$OWNER_TYPE" = "Organization" ]; then
+              API_URL="/orgs/${OWNER_LOWER}/packages/container/${SERVICE}/versions"
+            else
+              API_URL="/user/packages/container/${SERVICE}/versions"
+            fi
+            
+            VERSIONS=$(gh api -H "Accept: application/vnd.github+json" "$API_URL" --jq '.[] | .id' 2>/dev/null || true)
+            
+            if [ -z "$VERSIONS" ]; then
+              echo "No package versions found for $SERVICE."
+              continue
+            fi
+            
+            COUNT=0
+            for VERSION_ID in $VERSIONS; do
+              COUNT=$((COUNT+1))
+              if [ $COUNT -gt 2 ]; then
+                echo "Deleting old package version $VERSION_ID for $SERVICE..."
+                if [ "$OWNER_TYPE" = "Organization" ]; then
+                  gh api --method DELETE -H "Accept: application/vnd.github+json" "/orgs/${OWNER_LOWER}/packages/container/${SERVICE}/versions/${VERSION_ID}"
+                else
+                  gh api --method DELETE -H "Accept: application/vnd.github+json" "/user/packages/container/${SERVICE}/versions/${VERSION_ID}"
+                fi
+              else
+                echo "Keeping package version $VERSION_ID"
+              fi
+            done
+          done

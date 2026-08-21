@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package monitoring_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/monitoring_service;monitoring_service_proto";
+
+service MonitoringService {
+  rpc LogRequest(LogRequestMessage) returns (LogResponse);
+  rpc LogSystemMetrics(SystemMetricsMessage) returns (LogResponse);
+  rpc TriggerDailyUpload(UploadTriggerRequest) returns (UploadTriggerResponse);
+}
+
+message LogRequestMessage {
+  string service_name = 1;
+  string method = 2;
+  string path = 3;
+  int32 status_code = 4;
+  int64 duration_ms = 5;
+  string timestamp = 6;
+  string ip_address = 7;
+  string user_agent = 8;
+  map<string, string> request_metadata = 9;
+  int64 payload_size = 10;
+}
+
+message SystemMetricsMessage {
+  string service_name = 1;
+  string timestamp = 2;
+  double cpu_usage_percent = 3;
+  int64 memory_used_bytes = 4;
+  int64 memory_total_bytes = 5;
+  int64 disk_used_bytes = 6;
+  int64 disk_total_bytes = 7;
+  map<string, string> system_metadata = 8;
+}
+
+message LogResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UploadTriggerRequest {
+  string date = 1; // Optional specific date to rotate/upload (e.g. YYYY-MM-DD), if empty defaults to today
+}
+
+message UploadTriggerResponse {
+  bool success = 1;
+  string message = 2;
+}

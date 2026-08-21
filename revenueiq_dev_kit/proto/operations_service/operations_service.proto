@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package operations_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/operations_service;operations_proto";
+
+service OperationsService {
+  rpc RegisterChargingStation (RegisterStationRequest) returns (StationResponse);
+  rpc GetChargingStations (GetStationsRequest) returns (GetStationsResponse);
+  rpc QueueDroneForCharging (QueueChargingRequest) returns (QueueChargingResponse);
+  rpc ScheduleMaintenance (ScheduleMaintenanceRequest) returns (MaintenanceResponse);
+  rpc CompleteRepair (CompleteRepairRequest) returns (RepairResponse);
+}
+
+message ChargingStation {
+  string station_id = 1;
+  string name = 2;
+  double latitude = 3;
+  double longitude = 4;
+  int32 total_pads = 5;
+  int32 occupied_pads = 6;
+  string status = 7; // e.g. ACTIVE, MAINTENANCE, OFFLINE
+  repeated string parked_drone_ids = 8;
+  int64 updated_at = 9;
+}
+
+message RegisterStationRequest {
+  ChargingStation station = 1;
+}
+
+message StationResponse {
+  bool success = 1;
+  string message = 2;
+  ChargingStation station = 3;
+}
+
+message GetStationsRequest {
+  string status = 1;
+}
+
+message GetStationsResponse {
+  repeated ChargingStation stations = 1;
+  int32 total_count = 2;
+}
+
+message QueueChargingRequest {
+  string station_id = 1;
+  string drone_id = 2;
+  double current_battery = 3;
+}
+
+message QueueChargingResponse {
+  bool success = 1;
+  string message = 2;
+  int32 queue_position = 3;
+  int64 estimated_wait_seconds = 4;
+}
+
+message MaintenanceRecord {
+  string record_id = 1;
+  string drone_id = 2;
+  string issue_description = 3;
+  string maintenance_type = 4; // e.g. ROUTINE_CHECK, BATTERY_REPLACEMENT, FIRMWARE_UPDATE, REPAIR
+  string status = 5; // e.g. SCHEDULED, IN_PROGRESS, COMPLETED
+  string assigned_technician = 6;
+  int64 scheduled_at = 7;
+  int64 completed_at = 8;
+  string notes = 9;
+}
+
+message ScheduleMaintenanceRequest {
+  MaintenanceRecord record = 1;
+}
+
+message MaintenanceResponse {
+  bool success = 1;
+  string message = 2;
+  MaintenanceRecord record = 3;
+}
+
+message CompleteRepairRequest {
+  string record_id = 1;
+  string notes = 2;
+}
+
+message RepairResponse {
+  bool success = 1;
+  string message = 2;
+  MaintenanceRecord record = 3;
+}

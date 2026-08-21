@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package flight_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/flight_service;flight_proto";
+
+service FlightService {
+  rpc PlanRoute (PlanRouteRequest) returns (PlanRouteResponse);
+  rpc ValidateAirspace (ValidateAirspaceRequest) returns (ValidateAirspaceResponse);
+  rpc GetNoFlyZones (GetNoFlyZonesRequest) returns (GetNoFlyZonesResponse);
+  rpc AddNoFlyZone (AddNoFlyZoneRequest) returns (NoFlyZoneResponse);
+  rpc CheckWeather (CheckWeatherRequest) returns (CheckWeatherResponse);
+}
+
+message Waypoint {
+  double latitude = 1;
+  double longitude = 2;
+  double altitude_meters = 3;
+  string stage = 4; // e.g. TAKEOFF, CLIMB, CRUISE, DESCENT, LANDING
+}
+
+message PlanRouteRequest {
+  double pickup_lat = 1;
+  double pickup_lng = 2;
+  double delivery_lat = 3;
+  double delivery_lng = 4;
+  double cruise_altitude_meters = 5;
+  string drone_id = 6;
+  string order_id = 7;
+}
+
+message PlanRouteResponse {
+  bool success = 1;
+  string message = 2;
+  double total_distance_km = 3;
+  double estimated_flight_time_minutes = 4;
+  bool weather_cleared = 5;
+  bool airspace_cleared = 6;
+  repeated Waypoint waypoints = 7;
+}
+
+message ValidateAirspaceRequest {
+  repeated Waypoint waypoints = 1;
+}
+
+message ValidateAirspaceResponse {
+  bool is_valid = 1;
+  repeated string conflicts = 2;
+}
+
+message NoFlyZone {
+  string id = 1;
+  string name = 2;
+  double center_lat = 3;
+  double center_lng = 4;
+  double radius_meters = 5;
+  double min_altitude = 6;
+  double max_altitude = 7;
+  bool active = 8;
+  string reason = 9;
+  int64 created_at = 10;
+}
+
+message GetNoFlyZonesRequest {
+  bool active_only = 1;
+}
+
+message GetNoFlyZonesResponse {
+  repeated NoFlyZone zones = 1;
+}
+
+message AddNoFlyZoneRequest {
+  NoFlyZone zone = 1;
+}
+
+message NoFlyZoneResponse {
+  bool success = 1;
+  string message = 2;
+  NoFlyZone zone = 3;
+}
+
+message CheckWeatherRequest {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message CheckWeatherResponse {
+  bool is_safe = 1;
+  double wind_speed_kmh = 2;
+  string rain_intensity = 3;
+  double temperature_celsius = 4;
+  double visibility_km = 5;
+  string reason = 6;
+}

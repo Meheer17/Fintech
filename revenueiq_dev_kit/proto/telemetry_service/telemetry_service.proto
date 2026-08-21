@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package telemetry_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/telemetry_service;telemetry_proto";
+
+service TelemetryService {
+  // Bidirectional stream: Drone sends continuous TelemetryData, server responds with TelemetryAck frames
+  rpc StreamTelemetry (stream TelemetryData) returns (stream TelemetryAck);
+
+  // Server streaming: Clients/Dashboards subscribe to real-time live telemetry stream
+  rpc GetLiveTelemetry (GetLiveTelemetryRequest) returns (stream TelemetryData);
+
+  // Unary query: Fetches historical telemetry logs from S3 datalake
+  rpc GetFlightLogs (GetFlightLogsRequest) returns (FlightLogsResponse);
+}
+
+message TelemetryData {
+  string drone_id = 1;
+  string flight_id = 2;
+  double latitude = 3;
+  double longitude = 4;
+  double altitude_meters = 5;
+  double speed_kmh = 6;
+  double heading_degrees = 7;
+  double battery_percent = 8;
+  double temperature_celsius = 9;
+  double signal_strength_percent = 10;
+  string status = 11; // e.g. IN_FLIGHT, HOVERING, LANDING, EMERGENCY_HOLD
+  int64 timestamp = 12;
+}
+
+message TelemetryAck {
+  string drone_id = 1;
+  string flight_id = 2;
+  int64 timestamp = 3;
+  bool received = 4;
+  string command = 5; // e.g. CONTINUE, HOLD, RETURN_TO_HOME, EMERGENCY_LAND
+  string message = 6;
+}
+
+message GetLiveTelemetryRequest {
+  string drone_id = 1;
+}
+
+message GetFlightLogsRequest {
+  string drone_id = 1;
+  string flight_id = 2;
+  int32 limit = 3;
+}
+
+message FlightLogsResponse {
+  string drone_id = 1;
+  string flight_id = 2;
+  int32 total_records = 3;
+  repeated string datalake_files = 4;
+  repeated TelemetryData telemetry_points = 5;
+}

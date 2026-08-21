@@ -1,0 +1,499 @@
+version: '3.8'
+
+services:
+  # ─── INFRASTRUCTURE LAYER ───
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: revenueiq-mongodb-${STACK_NAME:-dev}
+    ports:
+      - "${MONGO_HOST_PORT:-27017}:27017"
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+
+  # Redis Database
+  redis:
+    image: redis:8.0-alpine
+    container_name: revenueiq-redis-${STACK_NAME:-dev}
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+
+  # Redpanda Event Broker (Kafka compatible)
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.1.1
+    container_name: revenueiq-redpanda-${STACK_NAME:-dev}
+    command:
+      - redpanda start
+      - --smp 1
+      - --overprovisioned
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # Redpanda Console UI
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.7.2
+    container_name: revenueiq-redpanda-console-${STACK_NAME:-dev}
+    ports:
+      - "${REDPANDA_CONSOLE_PORT:-8082}:8080"
+    environment:
+      - KAFKA_BROKERS=redpanda:29092
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+
+  # ─── DATA & UTILITY MICROSERVICES (Go) ───
+
+  # Mongo Service Access Layer (gRPC :50010)
+  mongo-service:
+    image: ghcr.io/${OWNER:-revenueiq}/mongo_service:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: mongodb_service/Dockerfile
+    container_name: revenueiq-mongo-service-${STACK_NAME:-dev}
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017}
+      - MONGO_DB=${MONGO_DB:-revenueiq_db}
+      - PORT=50010
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50010"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+
+  # Redis Service Access Layer (gRPC :50011)
+  redis-service:
+    image: ghcr.io/${OWNER:-revenueiq}/redis_service:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: redis_service/Dockerfile
+    container_name: revenueiq-redis-service-${STACK_NAME:-dev}
+    environment:
+      - REDIS_ADDR=${REDIS_ADDR:-redis:6379}
+      - PORT=50011
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50011"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+
+  # Audit Service (gRPC :50007)
+  audit-service:
+    image: ghcr.io/${OWNER:-revenueiq}/audit_service:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: audit_service/Dockerfile
+    container_name: revenueiq-audit-service-${STACK_NAME:-dev}
+    environment:
+      - PORT=50007
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - REDIS_SERVICE_ADDR=redis-service:50011
+      - REDPANDA_ADDR=redpanda:29092
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50007"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      redis-service:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+
+  # Notification Worker (Redpanda Consumer -> Email/SMS)
+  notification-service:
+    image: ghcr.io/${OWNER:-revenueiq}/notification_service:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: notification_service/Dockerfile
+    container_name: revenueiq-notification-service-${STACK_NAME:-dev}
+    environment:
+      - REDPANDA_ADDR=redpanda:29092
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+      - AWS_SES_MOCK=true
+      - HEALTH_PORT=8083
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8083"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+
+  # Webhook Receiver (Razorpay Webhooks HTTP :8001, gRPC :50001)
+  webhook-receiver:
+    image: ghcr.io/${OWNER:-revenueiq}/webhook_receiver:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: webhook_receiver/Dockerfile
+    container_name: revenueiq-webhook-receiver-${STACK_NAME:-dev}
+    ports:
+      - "${WEBHOOK_HTTP_PORT:-8001}:8001"
+    environment:
+      - PORT=50001
+      - HTTP_PORT=8001
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+      - REDPANDA_ADDR=redpanda:29092
+      - RAZORPAY_WEBHOOK_SECRET=${RAZORPAY_WEBHOOK_SECRET:-rzp_webhook_secret_123}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8001"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+      - frontend
+
+  # Dashboard API Gateway (REST HTTP :8005, gRPC :50005)
+  dashboard-api:
+    image: ghcr.io/${OWNER:-revenueiq}/dashboard_api:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: dashboard_api/Dockerfile
+    container_name: revenueiq-dashboard-api-${STACK_NAME:-dev}
+    ports:
+      - "${DASHBOARD_API_PORT:-8005}:8005"
+    environment:
+      - PORT=50005
+      - HTTP_PORT=8005
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+      - FAILURE_DETECTOR_ADDR=failure-detector:50002
+      - RECOVERY_ORCHESTRATOR_ADDR=recovery-orchestrator:50003
+      - RECONCILIATION_ENGINE_ADDR=reconciliation-engine:50004
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8005"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+      - frontend
+
+  # Checkout Tracker (HTTP :8008, gRPC :50008)
+  checkout-tracker:
+    image: ghcr.io/${OWNER:-revenueiq}/checkout_tracker:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: checkout_tracker/Dockerfile
+    container_name: revenueiq-checkout-tracker-${STACK_NAME:-dev}
+    ports:
+      - "${CHECKOUT_TRACKER_PORT:-8008}:8008"
+    environment:
+      - PORT=50008
+      - HTTP_PORT=8008
+      - REDPANDA_ADDR=redpanda:29092
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8008"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+      - frontend
+
+  # Voice Recovery Worker (HTTP :8009)
+  voice-recovery-worker:
+    image: ghcr.io/${OWNER:-revenueiq}/voice_recovery_worker:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: voice_recovery_worker/Dockerfile
+    container_name: revenueiq-voice-recovery-worker-${STACK_NAME:-dev}
+    environment:
+      - REDPANDA_ADDR=redpanda:29092
+      - HEALTH_PORT=8009
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8009"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+
+  # Auth Service (gRPC :50009, HTTP :8081)
+  auth-service:
+    image: ghcr.io/${OWNER:-revenueiq}/auth_service:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: auth_service/Dockerfile
+    container_name: revenueiq-auth-service-${STACK_NAME:-dev}
+    environment:
+      - PORT=50009
+      - HTTP_PORT=8081
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - REDIS_SERVICE_ADDR=redis-service:50011
+      - JWT_SECRET=${JWT_SECRET:-super-secret-jwt-key}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50009"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      redis-service:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - backend
+
+  # ─── PYTHON AI MICROSERVICES ───
+
+  # Failure Detector (HTTP/gRPC :50002 + AI Diagnosis Agent)
+  failure-detector:
+    image: ghcr.io/${OWNER:-revenueiq}/failure_detector:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: failure_detector/Dockerfile
+      target: ${BUILD_TARGET:-dev}
+    container_name: revenueiq-failure-detector-${STACK_NAME:-dev}
+    ports:
+      - "${FAILURE_DETECTOR_PORT:-50002}:50002"
+    environment:
+      - PORT=50002
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - REDIS_SERVICE_ADDR=redis-service:50011
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+      - REDPANDA_ADDR=redpanda:29092
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-mock-key}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:50002/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # Recovery Orchestrator (HTTP/gRPC :50003 + Strands GraphBuilder DAG + Guardrails)
+  recovery-orchestrator:
+    image: ghcr.io/${OWNER:-revenueiq}/recovery_orchestrator:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: recovery_orchestrator/Dockerfile
+      target: ${BUILD_TARGET:-dev}
+    container_name: revenueiq-recovery-orchestrator-${STACK_NAME:-dev}
+    ports:
+      - "${RECOVERY_ORCHESTRATOR_PORT:-50003}:50003"
+    environment:
+      - PORT=50003
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - REDIS_SERVICE_ADDR=redis-service:50011
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+      - REDPANDA_ADDR=redpanda:29092
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_RevenueIQKey123}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-rzp_secret_RevenueIQSecret456}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:50003/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      redis-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # Reconciliation Engine (HTTP/gRPC :50004 + Three-Way Matcher)
+  reconciliation-engine:
+    image: ghcr.io/${OWNER:-revenueiq}/reconciliation_engine:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: reconciliation_engine/Dockerfile
+      target: ${BUILD_TARGET:-dev}
+    container_name: revenueiq-reconciliation-engine-${STACK_NAME:-dev}
+    ports:
+      - "${RECONCILIATION_ENGINE_PORT:-50004}:50004"
+    environment:
+      - PORT=50004
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:50004/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # AI Gateway (HTTP/SSE :8006, gRPC :50006 + Master Agent + Forecast Tool)
+  ai-gateway:
+    image: ghcr.io/${OWNER:-revenueiq}/ai_gateway:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: ai_gateway/Dockerfile
+      target: ${BUILD_TARGET:-dev}
+    container_name: revenueiq-ai-gateway-${STACK_NAME:-dev}
+    ports:
+      - "${AI_GATEWAY_PORT:-8006}:8006"
+    environment:
+      - PORT=50006
+      - HTTP_PORT=8006
+      - MONGO_SERVICE_ADDR=mongo-service:50010
+      - FAILURE_DETECTOR_ADDR=failure-detector:50002
+      - RECOVERY_ORCHESTRATOR_ADDR=recovery-orchestrator:50003
+      - RECONCILIATION_ENGINE_ADDR=reconciliation-engine:50004
+      - AUDIT_SERVICE_ADDR=audit-service:50007
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-mock-key}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      mongo-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+
+  # ─── FRONTEND LAYER ───
+
+  # RevenueIQ Web Dashboard (Vite + React UI :3000)
+  frontend:
+    image: ghcr.io/${OWNER:-revenueiq}/frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: frontend/Dockerfile
+      target: ${BUILD_TARGET:-dev}
+    container_name: revenueiq-frontend-${STACK_NAME:-dev}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - VITE_DASHBOARD_API_URL=http://localhost:8005
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      dashboard-api:
+        condition: service_healthy
+    networks:
+      - frontend
+
+volumes:
+  mongodb-data:
+    name: revenueiq-mongodb-data-${STACK_NAME:-dev}
+  redis-data:
+    name: revenueiq-redis-data-${STACK_NAME:-dev}
+
+networks:
+  frontend:
+  backend:
+    internal: true

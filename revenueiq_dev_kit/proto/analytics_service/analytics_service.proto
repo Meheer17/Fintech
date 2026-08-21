@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package analytics_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/analytics_service;analytics_proto";
+
+service AnalyticsService {
+  rpc GetFleetMetrics (FleetMetricsRequest) returns (FleetMetricsResponse);
+  rpc GetOrderMetrics (OrderMetricsRequest) returns (OrderMetricsResponse);
+  rpc GetDroneUtilization (UtilizationRequest) returns (UtilizationResponse);
+  rpc GetFailureReport (FailureRequest) returns (FailureReportResponse);
+}
+
+message FleetMetricsRequest {
+  string time_window = 1; // e.g. 1h, 24h, 7d
+}
+
+message FleetMetricsResponse {
+  int32 total_drones = 1;
+  int32 active_drones = 2;
+  int32 maintenance_drones = 3;
+  double avg_battery_drain_rate = 4;
+  int32 maintenance_count_24h = 5;
+  int64 timestamp = 6;
+}
+
+message OrderMetricsRequest {
+  string time_window = 1;
+}
+
+message OrderMetricsResponse {
+  int64 total_orders = 1;
+  int64 completed_orders = 2;
+  int64 failed_orders = 3;
+  double delivery_success_rate = 4; // percentage
+  double avg_flight_time_minutes = 5;
+  double total_revenue = 6;
+  int64 timestamp = 7;
+}
+
+message UtilizationRequest {
+  string drone_id = 1;
+}
+
+message DroneStats {
+  string drone_id = 1;
+  int32 total_deliveries = 2;
+  double total_distance_km = 3;
+  double total_flight_hours = 4;
+  double idle_hours = 5;
+  double avg_signal_quality = 6;
+}
+
+message UtilizationResponse {
+  repeated DroneStats drones = 1;
+  double avg_fleet_utilization_percent = 2;
+}
+
+message FailureEvent {
+  string event_id = 1;
+  string category = 2; // e.g. CONGESTION, TELEMETRY_ALERT, DELIVERY_DROP, PAYMENT_FAIL
+  string service_name = 3;
+  string description = 4;
+  int64 timestamp = 5;
+}
+
+message FailureRequest {
+  string category = 1;
+  int32 limit = 2;
+}
+
+message FailureReportResponse {
+  repeated FailureEvent failures = 1;
+  int32 total_failures = 2;
+  int32 charging_congestion_count = 3;
+  int32 low_battery_alerts_count = 4;
+}

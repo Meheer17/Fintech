@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package fleet_service;
+
+option go_package = "github.com/RevenueIQ/revenueiq_dev_kit/proto/fleet_service;fleet_proto";
+
+service FleetService {
+  rpc RegisterDrone (RegisterDroneRequest) returns (DroneResponse);
+  rpc GetDrone (GetDroneRequest) returns (DroneResponse);
+  rpc UpdateDroneStatus (UpdateDroneStatusRequest) returns (DroneResponse);
+  rpc ReserveDrone (ReserveDroneRequest) returns (DroneResponse);
+  rpc AssignDrone (AssignDroneRequest) returns (DroneResponse);
+  rpc ListDrones (ListDronesRequest) returns (ListDronesResponse);
+}
+
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message Drone {
+  string drone_id = 1;
+  string model = 2;
+  string status = 3; // AVAILABLE, RESERVED, DELIVERING, RETURNING, CHARGING, MAINTENANCE, OFFLINE
+  double battery_level = 4; // Percentage (e.g. 85.5)
+  double payload_capacity_kg = 5;
+  Location current_location = 6;
+  string current_order_id = 7;
+  int64 registered_at = 8;
+  int64 last_updated_at = 9;
+}
+
+message RegisterDroneRequest {
+  string drone_id = 1;
+  string model = 2;
+  double payload_capacity_kg = 3;
+  double initial_battery_level = 4;
+  Location location = 5;
+}
+
+message GetDroneRequest {
+  string drone_id = 1;
+}
+
+message UpdateDroneStatusRequest {
+  string drone_id = 1;
+  string status = 2;
+  double battery_level = 3;
+  Location location = 4;
+  string current_order_id = 5;
+}
+
+message ReserveDroneRequest {
+  string drone_id = 1;
+  string order_id = 2;
+}
+
+message AssignDroneRequest {
+  string drone_id = 1;
+  string order_id = 2;
+}
+
+message ListDronesRequest {
+  string status = 1;
+  double min_battery = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListDronesResponse {
+  repeated Drone drones = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message DroneResponse {
+  bool success = 1;
+  string message = 2;
+  Drone drone = 3;
+}

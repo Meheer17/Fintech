@@ -1,0 +1,14 @@
+go 1.26.4
+
+use (
+	./audit_service
+	./auth_service
+	./checkout_tracker
+	./dashboard_api
+	./mongodb_service
+	./notification_service
+	./redis_service
+	./revenueiq_dev_kit
+	./voice_recovery_worker
+	./webhook_receiver
+)

@@ -1,0 +1,75 @@
+# =========================
+# STAGE 1: BASE
+# =========================
+FROM python:3.12-slim AS base
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# =========================
+# STAGE 2: BUILDER
+# =========================
+FROM base AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libffi-dev \
+    librdkafka-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY failure_detector/pyproject.toml .
+RUN pip install --upgrade pip hatchling && \
+    pip install --no-cache-dir fastapi uvicorn grpcio grpcio-tools protobuf confluent-kafka pydantic
+
+# =========================
+# STAGE 3: DEV
+# =========================
+FROM base AS dev
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    librdkafka1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY failure_detector/src ./src
+COPY failure_detector/pyproject.toml .
+
+EXPOSE 50002
+CMD ["python", "src/main.py"]
+
+# =========================
+# STAGE 4: PROD (MINIMAL RUNTIME)
+# =========================
+FROM python:3.12-slim AS prod
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/opt/venv/bin:$PATH"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    librdkafka1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -g 10001 appgroup \
+    && useradd -u 10001 -g appgroup -s /bin/sh -d /app appuser
+
+WORKDIR /app
+
+COPY --from=builder /opt/venv /opt/venv
+COPY --chown=appuser:appgroup failure_detector/src ./src
+
+RUN python -m compileall /app/src
+
+USER appuser
+EXPOSE 50002
+ENTRYPOINT ["python", "src/main.py"]
