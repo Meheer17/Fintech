@@ -24,18 +24,19 @@ type server struct {
 	pb.UnimplementedWebhookServiceServer
 }
 
-// Supported 10 Active Razorpay Webhook Events
+// Supported Active Razorpay Webhook Events
 var SupportedWebhookEvents = map[string]bool{
-	"payment.authorized":     true,
-	"payment.failed":         true,
-	"payment.captured":       true,
-	"payment.dispute.created": true,
-	"order.paid":              true,
-	"subscription.pending":    true,
-	"subscription.charged":    true,
-	"subscription.cancelled":  true,
-	"settlement.processed":    true,
-	"refund.created":         true,
+	"payment.authorized":        true,
+	"payment.failed":            true,
+	"payment.captured":          true,
+	"payment.dispute.created":   true,
+	"order.paid":                 true,
+	"subscription.pending":       true,
+	"subscription.charged":       true,
+	"subscription.charged.failed": true,
+	"subscription.cancelled":     true,
+	"settlement.processed":       true,
+	"refund.created":            true,
 }
 
 func verifySignature(body []byte, signature, secret string) bool {
@@ -131,7 +132,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"status":            "ok",
 			"service":           "webhook-receiver",
-			"supported_events":  10,
+			"supported_events":  len(SupportedWebhookEvents),
 			"webhook_secret_set": bool(webhookSecret != ""),
 		})
 	})

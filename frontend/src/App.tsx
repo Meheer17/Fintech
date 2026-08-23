@@ -5,6 +5,8 @@ import { AuthModal } from './components/AuthModal';
 import { OverviewTab } from './components/OverviewTab';
 import { SettlementsTab } from './components/SettlementsTab';
 import { SubscriptionsTab } from './components/SubscriptionsTab';
+import { DisputesTab } from './components/DisputesTab';
+import { RefundsTab } from './components/RefundsTab';
 import { FailuresTab } from './components/FailuresTab';
 import { RecoveriesTab } from './components/RecoveriesTab';
 import { PromisesTab } from './components/PromisesTab';
@@ -93,7 +95,9 @@ export const App: React.FC = () => {
     total_recovered_paise: 0,
     recovery_rate: 0,
     active_workflows: 0,
-    reconciliation_match: 0
+    reconciliation_match: 0,
+    failed_transactions_count: 0,
+    trend_data: [] as { day: string; atRisk: number; recovered: number }[]
   });
 
   const [failures, setFailures] = useState<FailureRecord[]>([]);
@@ -122,9 +126,11 @@ export const App: React.FC = () => {
 
         <main style={{ padding: '32px', flex: 1 }}>
           <ErrorBoundary>
-            {activeTab === 'overview' && <OverviewTab metrics={metrics} />}
+            {activeTab === 'overview' && <OverviewTab metrics={metrics} failures={failures} />}
             {activeTab === 'settlements' && <SettlementsTab />}
             {activeTab === 'subscriptions' && <SubscriptionsTab />}
+            {activeTab === 'disputes' && <DisputesTab />}
+            {activeTab === 'refunds' && <RefundsTab />}
             {activeTab === 'failures' && <FailuresTab failures={failures} />}
             {(activeTab === 'recoveries' || activeTab === 'workflows') && <RecoveriesTab workflows={workflows} />}
             {activeTab === 'promises' && <PromisesTab />}

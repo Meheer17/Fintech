@@ -1,6 +1,13 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowUpRight, TrendingUp, AlertTriangle, RefreshCw, CheckCircle } from 'lucide-react';
+import { FailureRecord } from '../types';
+
+export interface TrendPoint {
+  day: string;
+  atRisk: number;
+  recovered: number;
+}
 
 interface OverviewTabProps {
   metrics: {
@@ -9,20 +16,49 @@ interface OverviewTabProps {
     recovery_rate: number;
     active_workflows: number;
     reconciliation_match: number;
+    failed_transactions_count?: number;
+    trend_data?: TrendPoint[];
   };
+  failures?: FailureRecord[];
 }
 
-const trendData = [
-  { day: 'Mon', atRisk: 42000, recovered: 31000 },
-  { day: 'Tue', atRisk: 38000, recovered: 29000 },
-  { day: 'Wed', atRisk: 55000, recovered: 41000 },
-  { day: 'Thu', atRisk: 48000, recovered: 36000 },
-  { day: 'Fri', atRisk: 62000, recovered: 48000 },
-  { day: 'Sat', atRisk: 29000, recovered: 24000 },
-  { day: 'Sun', atRisk: 234500, recovered: 172000 },
-];
+export const OverviewTab: React.FC<OverviewTabProps> = ({ metrics, failures = [] }) => {
+  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-export const OverviewTab: React.FC<OverviewTabProps> = ({ metrics }) => {
+  let trendData: TrendPoint[] = [];
+
+  if (Array.isArray(metrics.trend_data) && metrics.trend_data.length > 0) {
+    trendData = metrics.trend_data;
+  } else if (Array.isArray(failures) && failures.length > 0) {
+    const computedMap: Record<string, { atRisk: number; recovered: number }> = {};
+    daysOfWeek.forEach((day) => {
+      computedMap[day] = { atRisk: 0, recovered: 0 };
+    });
+
+    failures.forEach((f) => {
+      if (!f.failed_at) return;
+      const dt = new Date(f.failed_at);
+      if (isNaN(dt.getTime())) return;
+      const dayIdx = (dt.getDay() + 6) % 7;
+      const dayName = daysOfWeek[dayIdx];
+      const amt = (f.amount_paise || 0) / 100;
+      computedMap[dayName].atRisk += amt;
+      if (f.recovery_status === 'RECOVERED') {
+        computedMap[dayName].recovered += amt;
+      }
+    });
+
+    trendData = daysOfWeek.map((day) => ({
+      day,
+      atRisk: computedMap[day].atRisk,
+      recovered: computedMap[day].recovered,
+    }));
+  } else {
+    trendData = daysOfWeek.map((day) => ({ day, atRisk: 0, recovered: 0 }));
+  }
+
+  const failedCount = metrics.failed_transactions_count ?? (failures ? failures.length : 0);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Metric Cards Row */}
@@ -45,7 +81,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ metrics }) => {
             ₹{(metrics.total_at_risk_paise / 100).toLocaleString('en-IN')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#c92a2a', marginTop: '6px' }}>
-            <span>60 failed transactions detected</span>
+            <span>{failedCount} failed transactions detected</span>
           </div>
         </div>
 

@@ -106,6 +106,20 @@ def create_payment_link_tool(name: str = "", email: str = "", phone: str = "", a
         res = httpx.post(url, auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET), json=payload, timeout=8.0)
         if res.status_code in [200, 201]:
             data = res.json()
+            try:
+                httpx.post(f"{DASHBOARD_API_URL}/audit/log", json={
+                    "service_name": "ai-gateway",
+                    "action": "CREATE_PAYMENT_LINK",
+                    "entity_type": "PAYMENT_LINK",
+                    "entity_id": data.get("id", ""),
+                    "actor": "master_agent",
+                    "reasoning": f"Generated live Razorpay payment link for {name} ({email}, {contact_phone}) for amount ₹{amount_inr:.2f}",
+                    "guardrails_checked": ["STRICT_DATA_VALIDATION", "BASIC_AUTH_VERIFIED"],
+                    "status": "SUCCESS"
+                }, timeout=3.0)
+            except Exception as audit_err:
+                logging.warning(f"Could not log payment link creation audit: {audit_err}")
+
             return json.dumps({
                 "success": True,
                 "payment_link_id": data.get("id"),
@@ -261,7 +275,7 @@ def get_audit_trail(limit: int = 10, entity_id: str = "") -> str:
             entries = [e for e in entries if e.get("entity_id") == entity_id]
         return json.dumps({"entries": entries[:limit], "total": len(entries)})
     except Exception as e:
-        return json.dumps({"error": f"Failed to fetch audit trail: {str(e)}"})
+        return json.dumps({"entries": [], "total": 0, "error": f"Failed to fetch audit trail: {str(e)}"})
 
 @tool
 def forecast_cash_position_tool(days: int = 7) -> str:

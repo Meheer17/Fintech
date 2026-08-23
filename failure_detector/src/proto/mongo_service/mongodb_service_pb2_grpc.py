@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from proto.mongo_service import mongodb_service_pb2 as proto_dot_mongo__service_dot_mongodb__service__pb2
+import mongodb_service_pb2 as mongodb__service__pb2
 
 GRPC_GENERATED_VERSION = '1.83.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in proto/mongo_service/mongodb_service_pb2_grpc.py depends on'
+        + ' but the generated code in mongodb_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,33 +36,33 @@ class UserServiceStub:
         """
         self.CreateUser = channel.unary_unary(
                 '/mongodb_service.UserService/CreateUser',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.CreateUserRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.CreateUserResponse.FromString,
+                request_serializer=mongodb__service__pb2.CreateUserRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.CreateUserResponse.FromString,
                 _registered_method=True)
         self.GetUser = channel.unary_unary(
                 '/mongodb_service.UserService/GetUser',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetUserRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.GetUserResponse.FromString,
                 _registered_method=True)
         self.GetUserByEmail = channel.unary_unary(
                 '/mongodb_service.UserService/GetUserByEmail',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserByEmailRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserByEmailResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetUserByEmailRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.GetUserByEmailResponse.FromString,
                 _registered_method=True)
         self.UpdateUser = channel.unary_unary(
                 '/mongodb_service.UserService/UpdateUser',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserResponse.FromString,
+                request_serializer=mongodb__service__pb2.UpdateUserRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.UpdateUserResponse.FromString,
                 _registered_method=True)
         self.DeleteUser = channel.unary_unary(
                 '/mongodb_service.UserService/DeleteUser',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.DeleteUserRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.DeleteUserResponse.FromString,
+                request_serializer=mongodb__service__pb2.DeleteUserRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.DeleteUserResponse.FromString,
                 _registered_method=True)
         self.QueryUsers = channel.unary_unary(
                 '/mongodb_service.UserService/QueryUsers',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.QueryUsersRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.QueryUsersResponse.FromString,
+                request_serializer=mongodb__service__pb2.QueryUsersRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.QueryUsersResponse.FromString,
                 _registered_method=True)
 
 
@@ -110,33 +110,33 @@ def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateUser': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateUser,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.CreateUserRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.CreateUserResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.CreateUserRequest.FromString,
+                    response_serializer=mongodb__service__pb2.CreateUserResponse.SerializeToString,
             ),
             'GetUser': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUser,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetUserRequest.FromString,
+                    response_serializer=mongodb__service__pb2.GetUserResponse.SerializeToString,
             ),
             'GetUserByEmail': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUserByEmail,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserByEmailRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserByEmailResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetUserByEmailRequest.FromString,
+                    response_serializer=mongodb__service__pb2.GetUserByEmailResponse.SerializeToString,
             ),
             'UpdateUser': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateUser,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.UpdateUserRequest.FromString,
+                    response_serializer=mongodb__service__pb2.UpdateUserResponse.SerializeToString,
             ),
             'DeleteUser': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteUser,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.DeleteUserRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.DeleteUserResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.DeleteUserRequest.FromString,
+                    response_serializer=mongodb__service__pb2.DeleteUserResponse.SerializeToString,
             ),
             'QueryUsers': grpc.unary_unary_rpc_method_handler(
                     servicer.QueryUsers,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.QueryUsersRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.QueryUsersResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.QueryUsersRequest.FromString,
+                    response_serializer=mongodb__service__pb2.QueryUsersResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -164,8 +164,8 @@ class UserService:
             request,
             target,
             '/mongodb_service.UserService/CreateUser',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.CreateUserRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.CreateUserResponse.FromString,
+            mongodb__service__pb2.CreateUserRequest.SerializeToString,
+            mongodb__service__pb2.CreateUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -191,8 +191,8 @@ class UserService:
             request,
             target,
             '/mongodb_service.UserService/GetUser',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserResponse.FromString,
+            mongodb__service__pb2.GetUserRequest.SerializeToString,
+            mongodb__service__pb2.GetUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -218,8 +218,8 @@ class UserService:
             request,
             target,
             '/mongodb_service.UserService/GetUserByEmail',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserByEmailRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserByEmailResponse.FromString,
+            mongodb__service__pb2.GetUserByEmailRequest.SerializeToString,
+            mongodb__service__pb2.GetUserByEmailResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -245,8 +245,8 @@ class UserService:
             request,
             target,
             '/mongodb_service.UserService/UpdateUser',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserResponse.FromString,
+            mongodb__service__pb2.UpdateUserRequest.SerializeToString,
+            mongodb__service__pb2.UpdateUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -272,8 +272,8 @@ class UserService:
             request,
             target,
             '/mongodb_service.UserService/DeleteUser',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.DeleteUserRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.DeleteUserResponse.FromString,
+            mongodb__service__pb2.DeleteUserRequest.SerializeToString,
+            mongodb__service__pb2.DeleteUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -299,8 +299,8 @@ class UserService:
             request,
             target,
             '/mongodb_service.UserService/QueryUsers',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.QueryUsersRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.QueryUsersResponse.FromString,
+            mongodb__service__pb2.QueryUsersRequest.SerializeToString,
+            mongodb__service__pb2.QueryUsersResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -323,23 +323,23 @@ class OrderMongoServiceStub:
         """
         self.CreateOrder = channel.unary_unary(
                 '/mongodb_service.OrderMongoService/CreateOrder',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.CreateMongoOrderRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.FromString,
+                request_serializer=mongodb__service__pb2.CreateMongoOrderRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoOrderResponse.FromString,
                 _registered_method=True)
         self.GetOrder = channel.unary_unary(
                 '/mongodb_service.OrderMongoService/GetOrder',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoOrderRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetMongoOrderRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoOrderResponse.FromString,
                 _registered_method=True)
         self.UpdateOrderStatus = channel.unary_unary(
                 '/mongodb_service.OrderMongoService/UpdateOrderStatus',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateMongoOrderStatusRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.FromString,
+                request_serializer=mongodb__service__pb2.UpdateMongoOrderStatusRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoOrderResponse.FromString,
                 _registered_method=True)
         self.ListOrders = channel.unary_unary(
                 '/mongodb_service.OrderMongoService/ListOrders',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoOrdersRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoOrdersResponse.FromString,
+                request_serializer=mongodb__service__pb2.ListMongoOrdersRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListMongoOrdersResponse.FromString,
                 _registered_method=True)
 
 
@@ -375,23 +375,23 @@ def add_OrderMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateOrder': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateOrder,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.CreateMongoOrderRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.CreateMongoOrderRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoOrderResponse.SerializeToString,
             ),
             'GetOrder': grpc.unary_unary_rpc_method_handler(
                     servicer.GetOrder,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoOrderRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetMongoOrderRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoOrderResponse.SerializeToString,
             ),
             'UpdateOrderStatus': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateOrderStatus,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateMongoOrderStatusRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.UpdateMongoOrderStatusRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoOrderResponse.SerializeToString,
             ),
             'ListOrders': grpc.unary_unary_rpc_method_handler(
                     servicer.ListOrders,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoOrdersRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoOrdersResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.ListMongoOrdersRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListMongoOrdersResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -419,8 +419,8 @@ class OrderMongoService:
             request,
             target,
             '/mongodb_service.OrderMongoService/CreateOrder',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.CreateMongoOrderRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.FromString,
+            mongodb__service__pb2.CreateMongoOrderRequest.SerializeToString,
+            mongodb__service__pb2.MongoOrderResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -446,8 +446,8 @@ class OrderMongoService:
             request,
             target,
             '/mongodb_service.OrderMongoService/GetOrder',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoOrderRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.FromString,
+            mongodb__service__pb2.GetMongoOrderRequest.SerializeToString,
+            mongodb__service__pb2.MongoOrderResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -473,8 +473,8 @@ class OrderMongoService:
             request,
             target,
             '/mongodb_service.OrderMongoService/UpdateOrderStatus',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateMongoOrderStatusRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoOrderResponse.FromString,
+            mongodb__service__pb2.UpdateMongoOrderStatusRequest.SerializeToString,
+            mongodb__service__pb2.MongoOrderResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -500,8 +500,8 @@ class OrderMongoService:
             request,
             target,
             '/mongodb_service.OrderMongoService/ListOrders',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoOrdersRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoOrdersResponse.FromString,
+            mongodb__service__pb2.ListMongoOrdersRequest.SerializeToString,
+            mongodb__service__pb2.ListMongoOrdersResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -524,38 +524,38 @@ class DroneMongoServiceStub:
         """
         self.RegisterDrone = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/RegisterDrone',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.RegisterMongoDroneRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+                request_serializer=mongodb__service__pb2.RegisterMongoDroneRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDroneResponse.FromString,
                 _registered_method=True)
         self.GetDrone = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/GetDrone',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoDroneRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetMongoDroneRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDroneResponse.FromString,
                 _registered_method=True)
         self.UpdateDroneStatus = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/UpdateDroneStatus',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateMongoDroneStatusRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+                request_serializer=mongodb__service__pb2.UpdateMongoDroneStatusRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDroneResponse.FromString,
                 _registered_method=True)
         self.FindAvailableDrone = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/FindAvailableDrone',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.FindAvailableDroneRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+                request_serializer=mongodb__service__pb2.FindAvailableDroneRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDroneResponse.FromString,
                 _registered_method=True)
         self.ReserveDrone = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/ReserveDrone',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ReserveMongoDroneRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+                request_serializer=mongodb__service__pb2.ReserveMongoDroneRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDroneResponse.FromString,
                 _registered_method=True)
         self.AssignDrone = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/AssignDrone',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.AssignMongoDroneRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+                request_serializer=mongodb__service__pb2.AssignMongoDroneRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDroneResponse.FromString,
                 _registered_method=True)
         self.ListDrones = channel.unary_unary(
                 '/mongodb_service.DroneMongoService/ListDrones',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoDronesRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoDronesResponse.FromString,
+                request_serializer=mongodb__service__pb2.ListMongoDronesRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListMongoDronesResponse.FromString,
                 _registered_method=True)
 
 
@@ -609,38 +609,38 @@ def add_DroneMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'RegisterDrone': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterDrone,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.RegisterMongoDroneRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.RegisterMongoDroneRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDroneResponse.SerializeToString,
             ),
             'GetDrone': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDrone,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoDroneRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetMongoDroneRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDroneResponse.SerializeToString,
             ),
             'UpdateDroneStatus': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateDroneStatus,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateMongoDroneStatusRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.UpdateMongoDroneStatusRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDroneResponse.SerializeToString,
             ),
             'FindAvailableDrone': grpc.unary_unary_rpc_method_handler(
                     servicer.FindAvailableDrone,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.FindAvailableDroneRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.FindAvailableDroneRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDroneResponse.SerializeToString,
             ),
             'ReserveDrone': grpc.unary_unary_rpc_method_handler(
                     servicer.ReserveDrone,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ReserveMongoDroneRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.ReserveMongoDroneRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDroneResponse.SerializeToString,
             ),
             'AssignDrone': grpc.unary_unary_rpc_method_handler(
                     servicer.AssignDrone,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.AssignMongoDroneRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.AssignMongoDroneRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDroneResponse.SerializeToString,
             ),
             'ListDrones': grpc.unary_unary_rpc_method_handler(
                     servicer.ListDrones,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoDronesRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoDronesResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.ListMongoDronesRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListMongoDronesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -668,8 +668,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/RegisterDrone',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.RegisterMongoDroneRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+            mongodb__service__pb2.RegisterMongoDroneRequest.SerializeToString,
+            mongodb__service__pb2.MongoDroneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -695,8 +695,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/GetDrone',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoDroneRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+            mongodb__service__pb2.GetMongoDroneRequest.SerializeToString,
+            mongodb__service__pb2.MongoDroneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -722,8 +722,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/UpdateDroneStatus',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateMongoDroneStatusRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+            mongodb__service__pb2.UpdateMongoDroneStatusRequest.SerializeToString,
+            mongodb__service__pb2.MongoDroneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -749,8 +749,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/FindAvailableDrone',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.FindAvailableDroneRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+            mongodb__service__pb2.FindAvailableDroneRequest.SerializeToString,
+            mongodb__service__pb2.MongoDroneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -776,8 +776,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/ReserveDrone',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ReserveMongoDroneRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+            mongodb__service__pb2.ReserveMongoDroneRequest.SerializeToString,
+            mongodb__service__pb2.MongoDroneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -803,8 +803,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/AssignDrone',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.AssignMongoDroneRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDroneResponse.FromString,
+            mongodb__service__pb2.AssignMongoDroneRequest.SerializeToString,
+            mongodb__service__pb2.MongoDroneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -830,8 +830,8 @@ class DroneMongoService:
             request,
             target,
             '/mongodb_service.DroneMongoService/ListDrones',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoDronesRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoDronesResponse.FromString,
+            mongodb__service__pb2.ListMongoDronesRequest.SerializeToString,
+            mongodb__service__pb2.ListMongoDronesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -854,13 +854,13 @@ class FlightMongoServiceStub:
         """
         self.AddNoFlyZone = channel.unary_unary(
                 '/mongodb_service.FlightMongoService/AddNoFlyZone',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.AddMongoNoFlyZoneRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoNoFlyZoneResponse.FromString,
+                request_serializer=mongodb__service__pb2.AddMongoNoFlyZoneRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoNoFlyZoneResponse.FromString,
                 _registered_method=True)
         self.GetNoFlyZones = channel.unary_unary(
                 '/mongodb_service.FlightMongoService/GetNoFlyZones',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoNoFlyZonesRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoNoFlyZonesResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetMongoNoFlyZonesRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListMongoNoFlyZonesResponse.FromString,
                 _registered_method=True)
 
 
@@ -884,13 +884,13 @@ def add_FlightMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'AddNoFlyZone': grpc.unary_unary_rpc_method_handler(
                     servicer.AddNoFlyZone,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.AddMongoNoFlyZoneRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoNoFlyZoneResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.AddMongoNoFlyZoneRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoNoFlyZoneResponse.SerializeToString,
             ),
             'GetNoFlyZones': grpc.unary_unary_rpc_method_handler(
                     servicer.GetNoFlyZones,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoNoFlyZonesRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoNoFlyZonesResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetMongoNoFlyZonesRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListMongoNoFlyZonesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -918,8 +918,8 @@ class FlightMongoService:
             request,
             target,
             '/mongodb_service.FlightMongoService/AddNoFlyZone',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.AddMongoNoFlyZoneRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoNoFlyZoneResponse.FromString,
+            mongodb__service__pb2.AddMongoNoFlyZoneRequest.SerializeToString,
+            mongodb__service__pb2.MongoNoFlyZoneResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -945,8 +945,8 @@ class FlightMongoService:
             request,
             target,
             '/mongodb_service.FlightMongoService/GetNoFlyZones',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoNoFlyZonesRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoNoFlyZonesResponse.FromString,
+            mongodb__service__pb2.GetMongoNoFlyZonesRequest.SerializeToString,
+            mongodb__service__pb2.ListMongoNoFlyZonesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -969,18 +969,18 @@ class OperationsMongoServiceStub:
         """
         self.RegisterStation = channel.unary_unary(
                 '/mongodb_service.OperationsMongoService/RegisterStation',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.RegisterMongoStationRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoStationResponse.FromString,
+                request_serializer=mongodb__service__pb2.RegisterMongoStationRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoStationResponse.FromString,
                 _registered_method=True)
         self.GetStations = channel.unary_unary(
                 '/mongodb_service.OperationsMongoService/GetStations',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoStationsRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoStationsResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetMongoStationsRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListMongoStationsResponse.FromString,
                 _registered_method=True)
         self.SaveMaintenance = channel.unary_unary(
                 '/mongodb_service.OperationsMongoService/SaveMaintenance',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoMaintenanceRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoMaintenanceResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveMongoMaintenanceRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoMaintenanceResponse.FromString,
                 _registered_method=True)
 
 
@@ -1010,18 +1010,18 @@ def add_OperationsMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'RegisterStation': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterStation,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.RegisterMongoStationRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoStationResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.RegisterMongoStationRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoStationResponse.SerializeToString,
             ),
             'GetStations': grpc.unary_unary_rpc_method_handler(
                     servicer.GetStations,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoStationsRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoStationsResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetMongoStationsRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListMongoStationsResponse.SerializeToString,
             ),
             'SaveMaintenance': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMaintenance,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoMaintenanceRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoMaintenanceResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveMongoMaintenanceRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoMaintenanceResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1049,8 +1049,8 @@ class OperationsMongoService:
             request,
             target,
             '/mongodb_service.OperationsMongoService/RegisterStation',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.RegisterMongoStationRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoStationResponse.FromString,
+            mongodb__service__pb2.RegisterMongoStationRequest.SerializeToString,
+            mongodb__service__pb2.MongoStationResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1076,8 +1076,8 @@ class OperationsMongoService:
             request,
             target,
             '/mongodb_service.OperationsMongoService/GetStations',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoStationsRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoStationsResponse.FromString,
+            mongodb__service__pb2.GetMongoStationsRequest.SerializeToString,
+            mongodb__service__pb2.ListMongoStationsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1103,8 +1103,8 @@ class OperationsMongoService:
             request,
             target,
             '/mongodb_service.OperationsMongoService/SaveMaintenance',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoMaintenanceRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoMaintenanceResponse.FromString,
+            mongodb__service__pb2.SaveMongoMaintenanceRequest.SerializeToString,
+            mongodb__service__pb2.MongoMaintenanceResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1127,13 +1127,13 @@ class DeliveryMongoServiceStub:
         """
         self.SaveDelivery = channel.unary_unary(
                 '/mongodb_service.DeliveryMongoService/SaveDelivery',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoDeliveryRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDeliveryResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveMongoDeliveryRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDeliveryResponse.FromString,
                 _registered_method=True)
         self.GetDelivery = channel.unary_unary(
                 '/mongodb_service.DeliveryMongoService/GetDelivery',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoDeliveryRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDeliveryResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetMongoDeliveryRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoDeliveryResponse.FromString,
                 _registered_method=True)
 
 
@@ -1157,13 +1157,13 @@ def add_DeliveryMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SaveDelivery': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveDelivery,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoDeliveryRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDeliveryResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveMongoDeliveryRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDeliveryResponse.SerializeToString,
             ),
             'GetDelivery': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDelivery,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoDeliveryRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDeliveryResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetMongoDeliveryRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoDeliveryResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1191,8 +1191,8 @@ class DeliveryMongoService:
             request,
             target,
             '/mongodb_service.DeliveryMongoService/SaveDelivery',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoDeliveryRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDeliveryResponse.FromString,
+            mongodb__service__pb2.SaveMongoDeliveryRequest.SerializeToString,
+            mongodb__service__pb2.MongoDeliveryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1218,8 +1218,8 @@ class DeliveryMongoService:
             request,
             target,
             '/mongodb_service.DeliveryMongoService/GetDelivery',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoDeliveryRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoDeliveryResponse.FromString,
+            mongodb__service__pb2.GetMongoDeliveryRequest.SerializeToString,
+            mongodb__service__pb2.MongoDeliveryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1242,23 +1242,23 @@ class PaymentMongoServiceStub:
         """
         self.SaveTransaction = channel.unary_unary(
                 '/mongodb_service.PaymentMongoService/SaveTransaction',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoTxRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoTxResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveMongoTxRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoTxResponse.FromString,
                 _registered_method=True)
         self.GetUserWallet = channel.unary_unary(
                 '/mongodb_service.PaymentMongoService/GetUserWallet',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserWalletRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWalletResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetUserWalletRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoWalletResponse.FromString,
                 _registered_method=True)
         self.UpdateUserWallet = channel.unary_unary(
                 '/mongodb_service.PaymentMongoService/UpdateUserWallet',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserWalletRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWalletResponse.FromString,
+                request_serializer=mongodb__service__pb2.UpdateUserWalletRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoWalletResponse.FromString,
                 _registered_method=True)
         self.ListUserTransactions = channel.unary_unary(
                 '/mongodb_service.PaymentMongoService/ListUserTransactions',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListUserTxRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListUserTxResponse.FromString,
+                request_serializer=mongodb__service__pb2.ListUserTxRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListUserTxResponse.FromString,
                 _registered_method=True)
 
 
@@ -1294,23 +1294,23 @@ def add_PaymentMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SaveTransaction': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveTransaction,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoTxRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoTxResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveMongoTxRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoTxResponse.SerializeToString,
             ),
             'GetUserWallet': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUserWallet,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserWalletRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWalletResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetUserWalletRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoWalletResponse.SerializeToString,
             ),
             'UpdateUserWallet': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateUserWallet,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserWalletRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWalletResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.UpdateUserWalletRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoWalletResponse.SerializeToString,
             ),
             'ListUserTransactions': grpc.unary_unary_rpc_method_handler(
                     servicer.ListUserTransactions,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListUserTxRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListUserTxResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.ListUserTxRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListUserTxResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1338,8 +1338,8 @@ class PaymentMongoService:
             request,
             target,
             '/mongodb_service.PaymentMongoService/SaveTransaction',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoTxRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoTxResponse.FromString,
+            mongodb__service__pb2.SaveMongoTxRequest.SerializeToString,
+            mongodb__service__pb2.MongoTxResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1365,8 +1365,8 @@ class PaymentMongoService:
             request,
             target,
             '/mongodb_service.PaymentMongoService/GetUserWallet',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetUserWalletRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWalletResponse.FromString,
+            mongodb__service__pb2.GetUserWalletRequest.SerializeToString,
+            mongodb__service__pb2.MongoWalletResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1392,8 +1392,8 @@ class PaymentMongoService:
             request,
             target,
             '/mongodb_service.PaymentMongoService/UpdateUserWallet',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.UpdateUserWalletRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWalletResponse.FromString,
+            mongodb__service__pb2.UpdateUserWalletRequest.SerializeToString,
+            mongodb__service__pb2.MongoWalletResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1419,8 +1419,8 @@ class PaymentMongoService:
             request,
             target,
             '/mongodb_service.PaymentMongoService/ListUserTransactions',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListUserTxRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListUserTxResponse.FromString,
+            mongodb__service__pb2.ListUserTxRequest.SerializeToString,
+            mongodb__service__pb2.ListUserTxResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1443,23 +1443,23 @@ class WarehouseMongoServiceStub:
         """
         self.SaveBusiness = channel.unary_unary(
                 '/mongodb_service.WarehouseMongoService/SaveBusiness',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoBusinessRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoBusinessResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveMongoBusinessRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoBusinessResponse.FromString,
                 _registered_method=True)
         self.SaveWarehouse = channel.unary_unary(
                 '/mongodb_service.WarehouseMongoService/SaveWarehouse',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoWarehouseRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWarehouseResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveMongoWarehouseRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoWarehouseResponse.FromString,
                 _registered_method=True)
         self.SaveInventory = channel.unary_unary(
                 '/mongodb_service.WarehouseMongoService/SaveInventory',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoInventoryRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoInventoryResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveMongoInventoryRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoInventoryResponse.FromString,
                 _registered_method=True)
         self.GetInventory = channel.unary_unary(
                 '/mongodb_service.WarehouseMongoService/GetInventory',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoInventoryRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoInventoryResponse.FromString,
+                request_serializer=mongodb__service__pb2.GetMongoInventoryRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListMongoInventoryResponse.FromString,
                 _registered_method=True)
 
 
@@ -1495,23 +1495,23 @@ def add_WarehouseMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SaveBusiness': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveBusiness,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoBusinessRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoBusinessResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveMongoBusinessRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoBusinessResponse.SerializeToString,
             ),
             'SaveWarehouse': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveWarehouse,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoWarehouseRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWarehouseResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveMongoWarehouseRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoWarehouseResponse.SerializeToString,
             ),
             'SaveInventory': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveInventory,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoInventoryRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoInventoryResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveMongoInventoryRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoInventoryResponse.SerializeToString,
             ),
             'GetInventory': grpc.unary_unary_rpc_method_handler(
                     servicer.GetInventory,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoInventoryRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoInventoryResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetMongoInventoryRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListMongoInventoryResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1539,8 +1539,8 @@ class WarehouseMongoService:
             request,
             target,
             '/mongodb_service.WarehouseMongoService/SaveBusiness',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoBusinessRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoBusinessResponse.FromString,
+            mongodb__service__pb2.SaveMongoBusinessRequest.SerializeToString,
+            mongodb__service__pb2.MongoBusinessResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1566,8 +1566,8 @@ class WarehouseMongoService:
             request,
             target,
             '/mongodb_service.WarehouseMongoService/SaveWarehouse',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoWarehouseRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWarehouseResponse.FromString,
+            mongodb__service__pb2.SaveMongoWarehouseRequest.SerializeToString,
+            mongodb__service__pb2.MongoWarehouseResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1593,8 +1593,8 @@ class WarehouseMongoService:
             request,
             target,
             '/mongodb_service.WarehouseMongoService/SaveInventory',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveMongoInventoryRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoInventoryResponse.FromString,
+            mongodb__service__pb2.SaveMongoInventoryRequest.SerializeToString,
+            mongodb__service__pb2.MongoInventoryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1620,8 +1620,8 @@ class WarehouseMongoService:
             request,
             target,
             '/mongodb_service.WarehouseMongoService/GetInventory',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetMongoInventoryRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListMongoInventoryResponse.FromString,
+            mongodb__service__pb2.GetMongoInventoryRequest.SerializeToString,
+            mongodb__service__pb2.ListMongoInventoryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1644,23 +1644,23 @@ class AnalyticsMongoServiceStub:
         """
         self.SaveAnalyticsSnapshot = channel.unary_unary(
                 '/mongodb_service.AnalyticsMongoService/SaveAnalyticsSnapshot',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveAnalyticsSnapshotRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveAnalyticsSnapshotRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoAnalyticsResponse.FromString,
                 _registered_method=True)
         self.GetLatestAnalyticsSnapshot = channel.unary_unary(
                 '/mongodb_service.AnalyticsMongoService/GetLatestAnalyticsSnapshot',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetAnalyticsSnapshotRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsSnapshotData.FromString,
+                request_serializer=mongodb__service__pb2.GetAnalyticsSnapshotRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoAnalyticsSnapshotData.FromString,
                 _registered_method=True)
         self.SaveFailureEvent = channel.unary_unary(
                 '/mongodb_service.AnalyticsMongoService/SaveFailureEvent',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveFailureEventRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveFailureEventRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoAnalyticsResponse.FromString,
                 _registered_method=True)
         self.ListFailureEvents = channel.unary_unary(
                 '/mongodb_service.AnalyticsMongoService/ListFailureEvents',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListFailureEventsRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListFailureEventsResponse.FromString,
+                request_serializer=mongodb__service__pb2.ListFailureEventsRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListFailureEventsResponse.FromString,
                 _registered_method=True)
 
 
@@ -1696,23 +1696,23 @@ def add_AnalyticsMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SaveAnalyticsSnapshot': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveAnalyticsSnapshot,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveAnalyticsSnapshotRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveAnalyticsSnapshotRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoAnalyticsResponse.SerializeToString,
             ),
             'GetLatestAnalyticsSnapshot': grpc.unary_unary_rpc_method_handler(
                     servicer.GetLatestAnalyticsSnapshot,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.GetAnalyticsSnapshotRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsSnapshotData.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.GetAnalyticsSnapshotRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoAnalyticsSnapshotData.SerializeToString,
             ),
             'SaveFailureEvent': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveFailureEvent,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveFailureEventRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveFailureEventRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoAnalyticsResponse.SerializeToString,
             ),
             'ListFailureEvents': grpc.unary_unary_rpc_method_handler(
                     servicer.ListFailureEvents,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListFailureEventsRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListFailureEventsResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.ListFailureEventsRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListFailureEventsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1740,8 +1740,8 @@ class AnalyticsMongoService:
             request,
             target,
             '/mongodb_service.AnalyticsMongoService/SaveAnalyticsSnapshot',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveAnalyticsSnapshotRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsResponse.FromString,
+            mongodb__service__pb2.SaveAnalyticsSnapshotRequest.SerializeToString,
+            mongodb__service__pb2.MongoAnalyticsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1767,8 +1767,8 @@ class AnalyticsMongoService:
             request,
             target,
             '/mongodb_service.AnalyticsMongoService/GetLatestAnalyticsSnapshot',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.GetAnalyticsSnapshotRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsSnapshotData.FromString,
+            mongodb__service__pb2.GetAnalyticsSnapshotRequest.SerializeToString,
+            mongodb__service__pb2.MongoAnalyticsSnapshotData.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1794,8 +1794,8 @@ class AnalyticsMongoService:
             request,
             target,
             '/mongodb_service.AnalyticsMongoService/SaveFailureEvent',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveFailureEventRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoAnalyticsResponse.FromString,
+            mongodb__service__pb2.SaveFailureEventRequest.SerializeToString,
+            mongodb__service__pb2.MongoAnalyticsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1821,8 +1821,8 @@ class AnalyticsMongoService:
             request,
             target,
             '/mongodb_service.AnalyticsMongoService/ListFailureEvents',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListFailureEventsRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListFailureEventsResponse.FromString,
+            mongodb__service__pb2.ListFailureEventsRequest.SerializeToString,
+            mongodb__service__pb2.ListFailureEventsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1845,13 +1845,13 @@ class WorkflowMongoServiceStub:
         """
         self.SaveWorkflow = channel.unary_unary(
                 '/mongodb_service.WorkflowMongoService/SaveWorkflow',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveWorkflowRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWorkflowResponse.FromString,
+                request_serializer=mongodb__service__pb2.SaveWorkflowRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.MongoWorkflowResponse.FromString,
                 _registered_method=True)
         self.ListWorkflows = channel.unary_unary(
                 '/mongodb_service.WorkflowMongoService/ListWorkflows',
-                request_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListWorkflowsRequest.SerializeToString,
-                response_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListWorkflowsResponse.FromString,
+                request_serializer=mongodb__service__pb2.ListWorkflowsRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.ListWorkflowsResponse.FromString,
                 _registered_method=True)
 
 
@@ -1875,13 +1875,13 @@ def add_WorkflowMongoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SaveWorkflow': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveWorkflow,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.SaveWorkflowRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWorkflowResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.SaveWorkflowRequest.FromString,
+                    response_serializer=mongodb__service__pb2.MongoWorkflowResponse.SerializeToString,
             ),
             'ListWorkflows': grpc.unary_unary_rpc_method_handler(
                     servicer.ListWorkflows,
-                    request_deserializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListWorkflowsRequest.FromString,
-                    response_serializer=proto_dot_mongo__service_dot_mongodb__service__pb2.ListWorkflowsResponse.SerializeToString,
+                    request_deserializer=mongodb__service__pb2.ListWorkflowsRequest.FromString,
+                    response_serializer=mongodb__service__pb2.ListWorkflowsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1909,8 +1909,8 @@ class WorkflowMongoService:
             request,
             target,
             '/mongodb_service.WorkflowMongoService/SaveWorkflow',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.SaveWorkflowRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.MongoWorkflowResponse.FromString,
+            mongodb__service__pb2.SaveWorkflowRequest.SerializeToString,
+            mongodb__service__pb2.MongoWorkflowResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1936,8 +1936,80 @@ class WorkflowMongoService:
             request,
             target,
             '/mongodb_service.WorkflowMongoService/ListWorkflows',
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListWorkflowsRequest.SerializeToString,
-            proto_dot_mongo__service_dot_mongodb__service__pb2.ListWorkflowsResponse.FromString,
+            mongodb__service__pb2.ListWorkflowsRequest.SerializeToString,
+            mongodb__service__pb2.ListWorkflowsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class SettlementMongoServiceStub:
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.GetSettlementAggregations = channel.unary_unary(
+                '/mongodb_service.SettlementMongoService/GetSettlementAggregations',
+                request_serializer=mongodb__service__pb2.GetSettlementAggregationsRequest.SerializeToString,
+                response_deserializer=mongodb__service__pb2.GetSettlementAggregationsResponse.FromString,
+                _registered_method=True)
+
+
+class SettlementMongoServiceServicer:
+    """Missing associated documentation comment in .proto file."""
+
+    def GetSettlementAggregations(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_SettlementMongoServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'GetSettlementAggregations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSettlementAggregations,
+                    request_deserializer=mongodb__service__pb2.GetSettlementAggregationsRequest.FromString,
+                    response_serializer=mongodb__service__pb2.GetSettlementAggregationsResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'mongodb_service.SettlementMongoService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('mongodb_service.SettlementMongoService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class SettlementMongoService:
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetSettlementAggregations(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/mongodb_service.SettlementMongoService/GetSettlementAggregations',
+            mongodb__service__pb2.GetSettlementAggregationsRequest.SerializeToString,
+            mongodb__service__pb2.GetSettlementAggregationsResponse.FromString,
             options,
             channel_credentials,
             insecure,

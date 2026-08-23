@@ -72,6 +72,10 @@ service WorkflowMongoService {
   rpc ListWorkflows (ListWorkflowsRequest) returns (ListWorkflowsResponse);
 }
 
+service SettlementMongoService {
+  rpc GetSettlementAggregations (GetSettlementAggregationsRequest) returns (GetSettlementAggregationsResponse);
+}
+
 
 
 
@@ -633,6 +637,19 @@ message MongoWorkflowResponse {
   bool success = 1;
   string message = 2;
   MongoWorkflowData workflow = 3;
+}
+
+// Settlement Aggregations Messages
+message GetSettlementAggregationsRequest {
+  int32 days = 1;
+}
+
+message GetSettlementAggregationsResponse {
+  bool success = 1;
+  string message = 2;
+  int64 total_settled_paise = 3;
+  int64 avg_daily_settlement_paise = 4;
+  int32 count = 5;
 }
 
 

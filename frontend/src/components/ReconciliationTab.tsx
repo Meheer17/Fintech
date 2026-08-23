@@ -35,13 +35,18 @@ export const ReconciliationTab: React.FC = () => {
     }
   };
 
-  const total = data?.total_records || 50;
-  const exact = data?.exact_matches || 42;
-  const fuzzy = data?.fuzzy_matches || 5;
-  const ai = data?.ai_matches || 2;
-  const unmatched = data?.unmatched || 1;
-  const matchRatePct = ((data?.match_rate || 0.942) * 100).toFixed(1);
+  const total = data?.total_records ?? 0;
+  const exact = data?.exact_matches ?? 0;
+  const fuzzy = data?.fuzzy_matches ?? 0;
+  const ai = data?.ai_matches ?? 0;
+  const unmatched = data?.unmatched ?? 0;
+  const matchRatePct = (((data?.match_rate ?? 0)) * 100).toFixed(1);
   const exceptions = data?.exceptions || [];
+
+  const exactPct = total > 0 ? (exact / total) * 100 : 0;
+  const fuzzyPct = total > 0 ? (fuzzy / total) * 100 : 0;
+  const aiPct = total > 0 ? (ai / total) * 100 : 0;
+  const unmatchedPct = total > 0 ? (unmatched / total) * 100 : 0;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -101,28 +106,28 @@ export const ReconciliationTab: React.FC = () => {
 
         {/* Visual Progress Bar */}
         <div style={{ height: '12px', borderRadius: '6px', backgroundColor: '#e9ecef', overflow: 'hidden', display: 'flex' }}>
-          <div style={{ width: `${(exact / total) * 100}%`, backgroundColor: '#2b8a3e' }} title={`Exact Matches (${exact})`} />
-          <div style={{ width: `${(fuzzy / total) * 100}%`, backgroundColor: '#1971c2' }} title={`Fuzzy Matches (${fuzzy})`} />
-          <div style={{ width: `${(ai / total) * 100}%`, backgroundColor: '#e67700' }} title={`AI Matches (${ai})`} />
-          <div style={{ width: `${(unmatched / total) * 100}%`, backgroundColor: '#c92a2a' }} title={`Unmatched Exceptions (${unmatched})`} />
+          <div style={{ width: `${exactPct}%`, backgroundColor: '#2b8a3e' }} title={`Exact Matches (${exact})`} />
+          <div style={{ width: `${fuzzyPct}%`, backgroundColor: '#1971c2' }} title={`Fuzzy Matches (${fuzzy})`} />
+          <div style={{ width: `${aiPct}%`, backgroundColor: '#e67700' }} title={`AI Matches (${ai})`} />
+          <div style={{ width: `${unmatchedPct}%`, backgroundColor: '#c92a2a' }} title={`Unmatched Exceptions (${unmatched})`} />
         </div>
 
         <div style={{ display: 'flex', gap: '24px', fontSize: '12px', color: '#4a5568' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#2b8a3e' }} />
-            <span>Exact Matches: <strong>{exact} ({((exact / total) * 100).toFixed(0)}%)</strong></span>
+            <span>Exact Matches: <strong>{exact} ({exactPct.toFixed(0)}%)</strong></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#1971c2' }} />
-            <span>Fuzzy Matches: <strong>{fuzzy} ({((fuzzy / total) * 100).toFixed(0)}%)</strong></span>
+            <span>Fuzzy Matches: <strong>{fuzzy} ({fuzzyPct.toFixed(0)}%)</strong></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#e67700' }} />
-            <span>AI Resolved: <strong>{ai} ({((ai / total) * 100).toFixed(0)}%)</strong></span>
+            <span>AI Resolved: <strong>{ai} ({aiPct.toFixed(0)}%)</strong></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#c92a2a' }} />
-            <span>Exceptions: <strong>{unmatched} ({((unmatched / total) * 100).toFixed(0)}%)</strong></span>
+            <span>Exceptions: <strong>{unmatched} ({unmatchedPct.toFixed(0)}%)</strong></span>
           </div>
         </div>
       </div>
@@ -153,34 +158,42 @@ export const ReconciliationTab: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {exceptions.map((exc: any) => (
-              <tr key={exc.id} style={{ borderBottom: '1px solid #f1f3f5' }}>
-                <td style={{ padding: '12px 16px', fontWeight: 600 }} className="mono">{exc.id}</td>
-                <td style={{ padding: '12px 16px', fontWeight: 600, color: '#e67700' }}>{exc.type}</td>
-                <td style={{ padding: '12px 16px' }} className="mono">{exc.order_id}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  ₹{(exc.expected / 100).toFixed(2)} / ₹{(exc.actual / 100).toFixed(2)}
-                </td>
-                <td style={{ padding: '12px 16px', color: '#4263eb' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={14} />
-                    {exc.suggestion}
-                  </div>
-                </td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={{
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    backgroundColor: exc.status === 'RESOLVED' ? '#ebfbee' : '#fff9db',
-                    color: exc.status === 'RESOLVED' ? '#2b8a3e' : '#e67700',
-                    fontSize: '11px',
-                    fontWeight: 600
-                  }}>
-                    {exc.status}
-                  </span>
+            {exceptions.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#8c98a9' }}>
+                  No exceptions reported in current reconciliation batch.
                 </td>
               </tr>
-            ))}
+            ) : (
+              exceptions.map((exc: any) => (
+                <tr key={exc.id} style={{ borderBottom: '1px solid #f1f3f5' }}>
+                  <td style={{ padding: '12px 16px', fontWeight: 600 }} className="mono">{exc.id}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600, color: '#e67700' }}>{exc.type}</td>
+                  <td style={{ padding: '12px 16px' }} className="mono">{exc.order_id}</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    ₹{((exc.expected || 0) / 100).toFixed(2)} / ₹{((exc.actual || 0) / 100).toFixed(2)}
+                  </td>
+                  <td style={{ padding: '12px 16px', color: '#4263eb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Sparkles size={14} />
+                      {exc.suggestion}
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      backgroundColor: exc.status === 'RESOLVED' ? '#ebfbee' : '#fff9db',
+                      color: exc.status === 'RESOLVED' ? '#2b8a3e' : '#e67700',
+                      fontSize: '11px',
+                      fontWeight: 600
+                    }}>
+                      {exc.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

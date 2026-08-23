@@ -16,7 +16,7 @@ export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) 
     setExecutingId(paymentId);
     try {
       const res = await triggerWorkflow(paymentId, currentRetries, amount);
-      setStatusMsg(`Triggered live workflow for ${paymentId}: ${res.action} (${res.reason})`);
+      setStatusMsg(`Triggered live workflow for ${paymentId}: ${res.action || 'SUCCESS'} (${res.reason || 'Executed step'})`);
     } catch (e: any) {
       setStatusMsg(`Workflow error: ${e.message}`);
     } finally {
@@ -52,24 +52,16 @@ export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) 
           textAlign: 'center',
           color: '#8c98a9'
         }}>
-          No active workflows found.
+          No active recovery workflows found.
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-          {safeWorkflows.map((wf) => {
-            const guardrails = Array.isArray(wf.guardrails_checked) && wf.guardrails_checked.length > 0
-              ? wf.guardrails_checked
-              : ['MAX_RETRIES', 'CONTACT_WINDOW', 'COST_CAP'];
-
-            const steps = Array.isArray(wf.steps) && wf.steps.length > 0
-              ? wf.steps
-              : [
-                  { step_id: 'st_1', action: 'DIAGNOSE_FAILURE', status: 'SUCCESS', result: 'Category: BANK_DECLINE', executed_at: '2026-08-21T08:14:05Z' },
-                  { step_id: 'st_2', action: 'RETRY_PAYMENT', status: 'SUCCESS', result: `Recovered via ${wf.recovered_id || 'retry attempt'}`, executed_at: '2026-08-21T08:15:20Z' }
-                ];
+          {safeWorkflows.map((wf, idx) => {
+            const guardrails = Array.isArray(wf.guardrails_checked) ? wf.guardrails_checked : [];
+            const steps = Array.isArray(wf.steps) ? wf.steps : [];
 
             return (
-              <div key={wf.workflow_id || Math.random().toString()} style={{
+              <div key={wf.workflow_id || `wf_${idx}`} style={{
                 backgroundColor: '#ffffff',
                 borderRadius: '8px',
                 border: '1px solid #e9ecef',
@@ -107,11 +99,15 @@ export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) 
                     Hard Compliance Guardrails Passed
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {guardrails.map((g, idx) => (
-                      <span key={g + idx} style={{ padding: '2px 6px', borderRadius: '4px', backgroundColor: '#ffffff', border: '1px solid #dee2e6', fontSize: '10px', fontWeight: 600, color: '#4a5568' }}>
-                        ✓ {g}
-                      </span>
-                    ))}
+                    {guardrails.length === 0 ? (
+                      <span style={{ color: '#8c98a9', fontSize: '11px' }}>None</span>
+                    ) : (
+                      guardrails.map((g, gIdx) => (
+                        <span key={g + gIdx} style={{ padding: '2px 6px', borderRadius: '4px', backgroundColor: '#ffffff', border: '1px solid #dee2e6', fontSize: '10px', fontWeight: 600, color: '#4a5568' }}>
+                          ✓ {g}
+                        </span>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -142,17 +138,21 @@ export const RecoveriesTab: React.FC<RecoveriesTabProps> = ({ workflows = [] }) 
                   <div style={{ fontSize: '12px', fontWeight: 600, color: '#8c98a9', marginBottom: '8px' }}>
                     Workflow Step Pipeline
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {steps.map((st, idx) => (
-                      <div key={st.step_id || idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}>
-                        <CheckCircle2 size={16} color="#2b8a3e" />
-                        <div style={{ flex: 1 }}>
-                          <span style={{ fontWeight: 600, color: '#1a1f2c' }}>{st.action}</span>
-                          <div style={{ color: '#8c98a9', fontSize: '11px' }}>{st.result}</div>
+                  {steps.length === 0 ? (
+                    <div style={{ color: '#8c98a9', fontSize: '12px' }}>No workflow steps executed yet</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {steps.map((st, sIdx) => (
+                        <div key={st.step_id || sIdx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}>
+                          <CheckCircle2 size={16} color="#2b8a3e" />
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontWeight: 600, color: '#1a1f2c' }}>{st.action}</span>
+                            <div style={{ color: '#8c98a9', fontSize: '11px' }}>{st.result}</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, AlertOctagon, RefreshCw, Handshake, CheckCircle2, FileText, MessageSquare, ShieldCheck, UserCheck, Landmark, Layers } from 'lucide-react';
+import { LayoutDashboard, AlertOctagon, RefreshCw, Handshake, CheckCircle2, FileText, MessageSquare, ShieldCheck, UserCheck, Landmark, Layers, ShieldAlert, RotateCcw } from 'lucide-react';
 import { UserRole } from '../types';
 
 interface SidebarProps {
@@ -26,6 +26,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, role 
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'settlements', label: 'Bank Settlements', icon: Landmark },
     { id: 'subscriptions', label: 'Subscriptions', icon: Layers },
+    { id: 'disputes', label: 'Disputes & Chargebacks', icon: ShieldAlert },
+    { id: 'refunds', label: 'Refunds Tracker', icon: RotateCcw },
     { id: 'failures', label: 'Payment Failures', icon: AlertOctagon },
     { id: 'recoveries', label: 'Recovery Workflows', icon: RefreshCw },
     { id: 'promises', label: 'Promise Tracker', icon: Handshake },

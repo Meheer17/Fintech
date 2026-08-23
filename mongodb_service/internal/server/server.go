@@ -18,6 +18,7 @@ type Server struct {
 	pb.UnimplementedWarehouseMongoServiceServer
 	pb.UnimplementedAnalyticsMongoServiceServer
 	pb.UnimplementedWorkflowMongoServiceServer
+	pb.UnimplementedSettlementMongoServiceServer
 	db          *db.MongoDatabase
 	redisClient redis_pb.RedisCacheServiceClient
 }

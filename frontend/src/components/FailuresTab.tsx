@@ -33,7 +33,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
       const res = await triggerDiagnosis(selectedFailure.payment_id, selectedFailure.category || 'BANK_DECLINE', 'Manual evaluation');
       setDiagnosisResult(res.root_cause || res.reason || 'AI diagnosis completed.');
     } catch (e: any) {
-      setDiagnosisResult(`Diagnosis executed: ${e.message}`);
+      setDiagnosisResult(`Diagnosis error: ${e.message}`);
     } finally {
       setDiagnosing(false);
     }
@@ -80,44 +80,52 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
             </tr>
           </thead>
           <tbody>
-            {safeFailures.map((f, i) => {
-              const statusInfo = getStatusBadge(f.recovery_status || 'PENDING');
-              const isSelected = selectedFailure?.id === f.id;
-              return (
-                <tr
-                  key={f.id || i}
-                  onClick={() => {
-                    setSelectedFailure(f);
-                    setDiagnosisResult(null);
-                  }}
-                  style={{
-                    borderBottom: '1px solid #f1f3f5',
-                    backgroundColor: isSelected ? '#edf2ff' : (i % 2 === 0 ? '#ffffff' : '#f8f9fa'),
-                    cursor: 'pointer'
-                  }}
-                >
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }} className="mono">{f.payment_id}</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>₹{((f.amount_paise || 0) / 100).toLocaleString('en-IN')}</td>
-                  <td style={{ padding: '12px 16px', textTransform: 'uppercase', fontSize: '11px', fontWeight: 600, color: '#4a5568' }}>{f.payment_method || 'upi'}</td>
-                  <td style={{ padding: '12px 16px', color: '#4a5568' }}>{f.category || 'GATEWAY_ERROR'}</td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '12px',
-                      backgroundColor: statusInfo.bg,
-                      color: statusInfo.color,
-                      fontSize: '11px',
-                      fontWeight: 600
-                    }}>
-                      {statusInfo.label}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 16px', color: '#4263eb' }}>
-                    <ChevronRight size={16} />
-                  </td>
-                </tr>
-              );
-            })}
+            {safeFailures.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#8c98a9' }}>
+                  No payment failures recorded.
+                </td>
+              </tr>
+            ) : (
+              safeFailures.map((f, i) => {
+                const statusInfo = getStatusBadge(f.recovery_status || 'PENDING');
+                const isSelected = selectedFailure?.id === f.id || selectedFailure?.payment_id === f.payment_id;
+                return (
+                  <tr
+                    key={f.id || f.payment_id || i}
+                    onClick={() => {
+                      setSelectedFailure(f);
+                      setDiagnosisResult(null);
+                    }}
+                    style={{
+                      borderBottom: '1px solid #f1f3f5',
+                      backgroundColor: isSelected ? '#edf2ff' : (i % 2 === 0 ? '#ffffff' : '#f8f9fa'),
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }} className="mono">{f.payment_id}</td>
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>₹{((f.amount_paise || 0) / 100).toLocaleString('en-IN')}</td>
+                    <td style={{ padding: '12px 16px', textTransform: 'uppercase', fontSize: '11px', fontWeight: 600, color: '#4a5568' }}>{f.payment_method || 'N/A'}</td>
+                    <td style={{ padding: '12px 16px', color: '#4a5568' }}>{f.category || 'GATEWAY_ERROR'}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        backgroundColor: statusInfo.bg,
+                        color: statusInfo.color,
+                        fontSize: '11px',
+                        fontWeight: 600
+                      }}>
+                        {statusInfo.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', color: '#4263eb' }}>
+                      <ChevronRight size={16} />
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -146,7 +154,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
           <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: '#f8f9fa', border: '1px solid #e9ecef', fontSize: '12px' }}>
             <div style={{ fontWeight: 600, color: '#8c98a9' }}>AI Root Cause Explanation</div>
             <div style={{ color: '#1a1f2c', marginTop: '4px', fontWeight: 500 }}>
-              "{diagnosisResult || selectedFailure.root_cause || 'Click below to run real-time AI diagnosis against failure_detector service.'}"
+              "{diagnosisResult || selectedFailure.root_cause || 'No diagnosis available. Click below to run real-time AI diagnosis.'}"
             </div>
           </div>
 
@@ -174,7 +182,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
           <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#8c98a9' }}>Order ID:</span>
-              <span className="mono" style={{ fontWeight: 600 }}>{selectedFailure.order_id || 'ord_001'}</span>
+              <span className="mono" style={{ fontWeight: 600 }}>{selectedFailure.order_id || 'N/A'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#8c98a9' }}>Amount:</span>
@@ -182,7 +190,7 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#8c98a9' }}>Suggested Action:</span>
-              <span style={{ fontWeight: 600, color: '#4263eb' }}>{selectedFailure.suggestion || 'RETRY_PAYMENT'}</span>
+              <span style={{ fontWeight: 600, color: '#4263eb' }}>{selectedFailure.suggestion || 'N/A'}</span>
             </div>
           </div>
         </div>
