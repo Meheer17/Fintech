@@ -27,7 +27,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY reconciliation_engine/pyproject.toml .
 RUN pip install --upgrade pip hatchling && \
-    pip install --no-cache-dir fastapi uvicorn grpcio protobuf pydantic httpx
+    pip install --no-cache-dir fastapi uvicorn grpcio protobuf pydantic httpx python-dotenv strands-agents strands-agents-tools
 
 # =========================
 # STAGE 3: DEV

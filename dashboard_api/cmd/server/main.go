@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -70,15 +69,74 @@ func getDirectMongoDB() (*mongo.Database, error) {
 	return client.Database(dbName), nil
 }
 
-func triggerRazorpaySync() error {
-	cmd := exec.Command("python3", "data/razorpay_sync.py")
-	cmd.Dir = "/home/mahi17/Github/fintech"
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf("[ERROR] Razorpay sync failed: %v | Output: %s", err, string(output))
-		return err
+func triggerRazorpaySync(db *mongo.Database) error {
+	keyID := os.Getenv("RAZORPAY_KEY_ID")
+	if keyID == "" {
+		keyID = "rzp_test_SESIqmsJZRvpZ1"
 	}
-	log.Printf("[INFO] Razorpay sync executed successfully: %s", string(output))
+	keySecret := os.Getenv("RAZORPAY_KEY_SECRET")
+	if keySecret == "" {
+		keySecret = "4qzbtZYU4wrF4ER3lYk2hIt7"
+	}
+
+	client := &http.Client{Timeout: 8 * time.Second}
+
+	endpoints := map[string]string{
+		"settlements":   "https://api.razorpay.com/v1/settlements",
+		"subscriptions": "https://api.razorpay.com/v1/subscriptions",
+		"payments":      "https://api.razorpay.com/v1/payments",
+		"orders":        "https://api.razorpay.com/v1/orders",
+		"disputes":      "https://api.razorpay.com/v1/disputes",
+		"refunds":       "https://api.razorpay.com/v1/refunds",
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	for collName, url := range endpoints {
+		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+		if err != nil {
+			continue
+		}
+		req.SetBasicAuth(keyID, keySecret)
+
+		resp, err := client.Do(req)
+		if err != nil || resp.StatusCode != 200 {
+			log.Printf("[WARNING] Could not fetch Razorpay %s: %v", collName, err)
+			continue
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			continue
+		}
+
+		var payload struct {
+			Items []map[string]interface{} `json:"items"`
+		}
+		if err := json.Unmarshal(body, &payload); err != nil {
+			continue
+		}
+
+		if db != nil {
+			coll := db.Collection(collName)
+			for _, item := range payload.Items {
+				id, _ := item["id"].(string)
+				if id == "" {
+					id, _ = item["entity_id"].(string)
+				}
+				filter := bson.M{"id": id}
+				if id == "" {
+					filter = bson.M{"_id": item["_id"]}
+				}
+				update := bson.M{"$set": item}
+				_, _ = coll.UpdateOne(ctx, filter, update, options.Update().SetUpsert(true))
+			}
+			log.Printf("[INFO] Native Razorpay Go Sync: Upserted %d records into '%s'", len(payload.Items), collName)
+		}
+	}
+
 	return nil
 }
 
@@ -105,16 +163,15 @@ func main() {
 		reconciliationEngineURL = "http://localhost:50004"
 	}
 
-	// Trigger initial sync from live Razorpay account into MongoDB
-	log.Printf("Executing initial sync from live Razorpay account...")
-	_ = triggerRazorpaySync()
-
 	// Connect Direct MongoDB Driver
 	db, mongoErr := getDirectMongoDB()
 	if mongoErr != nil {
 		log.Printf("[WARNING] Could not connect directly to MongoDB: %v", mongoErr)
 	} else {
 		log.Printf("Successfully connected dashboard_api directly to MongoDB database 'revenueiq_db'")
+		// Trigger initial sync from live Razorpay account into MongoDB natively in Go
+		log.Printf("Executing initial sync from live Razorpay account natively in Go...")
+		_ = triggerRazorpaySync(db)
 	}
 
 	// Connect MongoService gRPC
@@ -156,7 +213,7 @@ func main() {
 	{
 		// TRIGGER SYNC ENDPOINT
 		api.POST("/sync", func(c *gin.Context) {
-			err := triggerRazorpaySync()
+			err := triggerRazorpaySync(db)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
 				return

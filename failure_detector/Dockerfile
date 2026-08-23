@@ -28,7 +28,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY failure_detector/pyproject.toml .
 RUN pip install --upgrade pip hatchling && \
-    pip install --no-cache-dir fastapi uvicorn grpcio grpcio-tools protobuf confluent-kafka pydantic httpx
+    pip install --no-cache-dir fastapi uvicorn grpcio grpcio-tools protobuf confluent-kafka pydantic httpx python-dotenv strands-agents strands-agents-tools
 
 # =========================
 # STAGE 3: DEV
