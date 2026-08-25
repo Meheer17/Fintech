@@ -30,7 +30,7 @@ try:
     base_url = os.getenv("OPENAI_BASE_URL", "https://bedrock-mantle.ap-south-1.api.aws/v1")
     llm_model = OpenAIModel(
         model_id="mistral.ministral-3-8b-instruct",
-        client_args={"base_url": base_url, "api_key": bedrock_key}
+        client_args={"base_url": base_url, "api_key": bedrock_key, "timeout": 30.0, "max_retries": 2}
     )
     strategy_agent = Agent(model=llm_model)
 except Exception as e:
@@ -106,24 +106,28 @@ def process_workflow(
             "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ")
         }
     else:
-        # AI Agent strategy selection for explanation
+        # Strands AI Agent strategy selection
         ai_explanation = ""
+        target_action = action_type.upper() if action_type and action_type != "AUTO" else suggested_action.upper()
+
         if strategy_agent:
             try:
                 prompt = (
-                    f"Recommend recovery strategy for failed payment '{payment_id}' of amount ₹{amount_paise/100:.2f}. "
-                    f"Category: '{failure_category}', Suggested Action: '{suggested_action}'. "
-                    f"Attempt count: {current_retries + 1}."
+                    f"You are a payment recovery strategy AI agent. Recommend recovery action for failed payment '{payment_id}' (amount ₹{amount_paise/100:.2f}).\n"
+                    f"Failure Category: '{failure_category}', Suggested Action: '{suggested_action}', Attempt: {current_retries + 1}.\n"
+                    f"Select exactly one action from: [ACTION_RETRY_SUBSCRIPTION, ACTION_SEND_CARD_UPDATE_LINK, ACTION_RENEW_MANDATE, ACTION_CREATE_PAYMENT_LINK, ACTION_ESCALATE_TO_HUMAN]."
                 )
-                response = strategy_agent(prompt)
-                ai_explanation = f" | Strands AI Strategy Agent: {str(response)[:180]}..."
+                response = str(strategy_agent(prompt))
+                ai_explanation = f" | Strands AI Strategy Agent: {response[:180]}..."
+                for act in ["ACTION_RETRY_SUBSCRIPTION", "ACTION_SEND_CARD_UPDATE_LINK", "ACTION_RENEW_MANDATE", "ACTION_CREATE_PAYMENT_LINK", "ACTION_ESCALATE_TO_HUMAN"]:
+                    if act in response:
+                        target_action = act
+                        break
             except Exception as err:
                 logging.warning(f"Strategy agent execution error: {err}")
 
-        # Action Branching Logic
-        target_action = action_type.upper() if action_type and action_type != "AUTO" else suggested_action.upper()
-
         if target_action in ["ACTION_RETRY_SUBSCRIPTION", "RETRY_SUBSCRIPTION"] or failure_category == "SUBSCRIPTION_FAILED":
+
             sub_id = subscription_id or f"sub_{payment_id}"
             retry_status = "WF_COMPLETED"
             retry_note = f"Triggered Razorpay Subscription Charge Retry for {sub_id}"

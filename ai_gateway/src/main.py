@@ -316,7 +316,9 @@ model = OpenAIModel(
     model_id="mistral.ministral-3-8b-instruct",
     client_args={
         "base_url": base_url,
-        "api_key": bedrock_key
+        "api_key": bedrock_key,
+        "timeout": 30.0,
+        "max_retries": 2
     }
 )
 

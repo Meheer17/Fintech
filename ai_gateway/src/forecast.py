@@ -16,6 +16,14 @@ except ImportError:
 MONGO_SERVICE_ADDR = os.getenv("MONGO_SERVICE_ADDR", "localhost:50010")
 
 def forecast_cash_position(days: int = 7, avg_daily_settlement_paise: int = 2500000) -> dict:
+    if days <= 0:
+        return {
+            "horizon_days": days,
+            "avg_daily_settlement_paise": avg_daily_settlement_paise,
+            "total_projected_cash_paise": 0,
+            "daily_forecast": []
+        }
+
     # Try fetching real daily settlement average via gRPC from mongodb_service
     try:
         addr = MONGO_SERVICE_ADDR

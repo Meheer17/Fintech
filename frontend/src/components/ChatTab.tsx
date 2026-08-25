@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { sendAIChatMessage } from '../lib/api';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const ChatTab: React.FC = () => {
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([
@@ -16,9 +17,14 @@ export const ChatTab: React.FC = () => {
     setMessages((prev) => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
 
-    const reply = await sendAIChatMessage(userMsg);
-    setMessages((prev) => [...prev, { role: 'assistant', text: reply }]);
-    setLoading(false);
+    try {
+      const reply = await sendAIChatMessage(userMsg);
+      setMessages((prev) => [...prev, { role: 'assistant', text: reply }]);
+    } catch (err: any) {
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Error communicating with AI Gateway: ${err.message || err}` }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const samplePrompts = [
@@ -74,9 +80,10 @@ export const ChatTab: React.FC = () => {
               color: m.role === 'user' ? '#ffffff' : '#1a1f2c',
               border: m.role === 'assistant' ? '1px solid #e9ecef' : 'none',
               fontSize: '14px',
-              lineHeight: 1.5
+              lineHeight: 1.5,
+              wordBreak: 'break-word'
             }}>
-              {m.text}
+              <MarkdownRenderer content={m.text} isUser={m.role === 'user'} />
             </div>
             {m.role === 'user' && (
               <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#f1f3f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

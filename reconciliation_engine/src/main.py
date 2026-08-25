@@ -27,7 +27,7 @@ try:
     base_url = os.getenv("OPENAI_BASE_URL", "https://bedrock-mantle.ap-south-1.api.aws/v1")
     llm_model = OpenAIModel(
         model_id="mistral.ministral-3-8b-instruct",
-        client_args={"base_url": base_url, "api_key": bedrock_key}
+        client_args={"base_url": base_url, "api_key": bedrock_key, "timeout": 30.0, "max_retries": 2}
     )
     recon_agent = Agent(model=llm_model)
 except Exception as e:
