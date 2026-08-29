@@ -95,22 +95,31 @@ func triggerRazorpaySync(db *mongo.Database) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
+	fetchedAny := false
+
 	for collName, url := range endpoints {
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {
+			log.Printf("[WARNING] Failed to create HTTP request for Razorpay %s: %v", collName, err)
 			continue
 		}
 		req.SetBasicAuth(keyID, keySecret)
 
 		resp, err := client.Do(req)
-		if err != nil || resp.StatusCode != 200 {
-			log.Printf("[WARNING] Could not fetch Razorpay %s: %v", collName, err)
+		if err != nil {
+			log.Printf("[WARNING] Could not fetch Razorpay %s (network error): %v", collName, err)
 			continue
 		}
 
 		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
+			log.Printf("[WARNING] Failed to read response body for Razorpay %s: %v", collName, err)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Printf("[WARNING] Could not fetch Razorpay %s: HTTP %d %s", collName, resp.StatusCode, resp.Status)
 			continue
 		}
 
@@ -118,10 +127,11 @@ func triggerRazorpaySync(db *mongo.Database) error {
 			Items []map[string]interface{} `json:"items"`
 		}
 		if err := json.Unmarshal(body, &payload); err != nil {
+			log.Printf("[WARNING] Failed to parse Razorpay %s JSON response: %v", collName, err)
 			continue
 		}
 
-		if db != nil {
+		if db != nil && len(payload.Items) > 0 {
 			coll := db.Collection(collName)
 			for _, item := range payload.Items {
 				id, _ := item["id"].(string)
@@ -135,8 +145,13 @@ func triggerRazorpaySync(db *mongo.Database) error {
 				update := bson.M{"$set": item}
 				_, _ = coll.UpdateOne(ctx, filter, update, options.Update().SetUpsert(true))
 			}
+			fetchedAny = true
 			log.Printf("[INFO] Native Razorpay Go Sync: Upserted %d records into '%s'", len(payload.Items), collName)
 		}
+	}
+
+	if !fetchedAny {
+		log.Printf("[NOTE] Razorpay API sync completed. Ensure valid RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET environment variables are set for live merchant account sync.")
 	}
 
 	return nil
