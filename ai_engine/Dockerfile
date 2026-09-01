@@ -3,7 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY ai_engine/pyproject.toml ./
-RUN pip install --no-cache-dir fastapi uvicorn pydantic python-dotenv requests httpx openai strands-agents strands-agents-tools grpcio grpcio-tools
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir fastapi uvicorn pydantic python-dotenv requests httpx openai strands-agents strands-agents-tools "grpcio>=1.60.0,<1.70.0" "grpcio-tools>=1.60.0,<1.70.0"
 
 COPY revenueiq_dev_kit ./revenueiq_dev_kit
 COPY ai_engine ./ai_engine

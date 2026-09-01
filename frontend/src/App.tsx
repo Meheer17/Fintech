@@ -14,7 +14,7 @@ import { ReconciliationTab } from './components/ReconciliationTab';
 import { AuditTab } from './components/AuditTab';
 import { ChatTab } from './components/ChatTab';
 import { UserProfile, FailureRecord, WorkflowRecord, AuditEntry } from './types';
-import { fetchOverviewMetrics, fetchFailures, fetchWorkflows, fetchAuditLogs } from './lib/api';
+import { fetchOverviewMetrics, fetchFailures, fetchWorkflows, fetchAuditLogs, triggerSync } from './lib/api';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -82,6 +82,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile>({
     id: 'usr_judge_01',
     name: 'Razorpay Evaluator',
@@ -117,12 +118,24 @@ export const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [refreshAllData]);
 
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await triggerSync();
+      refreshAllData();
+    } catch (e) {
+      console.error('Sync error:', e);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} role={currentUser.role} />
 
       <div style={{ marginLeft: '260px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <Navbar user={currentUser} onOpenAuth={() => setIsAuthOpen(true)} />
+        <Navbar user={currentUser} onOpenAuth={() => setIsAuthOpen(true)} onSync={handleSync} syncing={syncing} />
 
         <main style={{ padding: '32px', flex: 1 }}>
           <ErrorBoundary>

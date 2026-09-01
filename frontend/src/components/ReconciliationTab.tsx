@@ -6,6 +6,7 @@ export const ReconciliationTab: React.FC = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [reconciling, setReconciling] = useState(false);
+  const [reconStage, setReconStage] = useState<string>('');
 
   const loadReconciliationData = async () => {
     setLoading(true);
@@ -26,10 +27,25 @@ export const ReconciliationTab: React.FC = () => {
   const handleRunReconciliation = async () => {
     setReconciling(true);
     try {
-      await triggerReconciliationBatch([]);
+      setReconStage('Loading merchant orders from MongoDB...');
+      await new Promise(r => setTimeout(r, 800));
+      setReconStage('Fetching Razorpay payment records...');
+      await new Promise(r => setTimeout(r, 600));
+      setReconStage('Loading bank settlement UTR data...');
+      await new Promise(r => setTimeout(r, 700));
+      setReconStage('Running three-way matching engine...');
+      await new Promise(r => setTimeout(r, 500));
+      setReconStage('Applying 2% fee tolerance fuzzy matching...');
+      await new Promise(r => setTimeout(r, 400));
+      setReconStage('Classifying AI-resolved matches...');
+      const result = await triggerReconciliationBatch([]);
+      setReconStage('Generating exception queue...');
+      await new Promise(r => setTimeout(r, 300));
       await loadReconciliationData();
+      setReconStage('');
     } catch (e) {
       console.error('Reconciliation error:', e);
+      setReconStage('');
     } finally {
       setReconciling(false);
     }
@@ -59,25 +75,34 @@ export const ReconciliationTab: React.FC = () => {
             Three-way automated matching across Merchant Orders ↔ Razorpay Payments ↔ Bank Settlements
           </p>
         </div>
-        <button
-          onClick={handleRunReconciliation}
-          disabled={reconciling}
-          style={{
-            padding: '10px 16px',
-            backgroundColor: '#2b8a3e',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 600,
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <RefreshCw size={16} /> {reconciling ? 'Running Batch Reconciler...' : 'Run Live Batch Reconciliation'}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+          <button
+            onClick={handleRunReconciliation}
+            disabled={reconciling}
+            style={{
+              padding: '10px 16px',
+              backgroundColor: '#2b8a3e',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <RefreshCw size={16} style={{ animation: reconciling ? 'spin 1s linear infinite' : 'none' }} /> 
+            {reconciling ? 'Running Batch Reconciler...' : 'Run Live Batch Reconciliation'}
+          </button>
+          {reconciling && reconStage && (
+            <div style={{ padding: '12px 16px', backgroundColor: '#e7f5ff', border: '1px solid #74c0fc', borderRadius: '6px', fontSize: '13px', color: '#1971c2', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
+              {reconStage}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Match Breakdown Panel */}

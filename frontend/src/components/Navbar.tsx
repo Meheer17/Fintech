@@ -1,13 +1,15 @@
 import React from 'react';
 import { UserRole, UserProfile } from '../types';
-import { LogIn, UserCircle, Activity } from 'lucide-react';
+import { LogIn, UserCircle, Activity, RefreshCw } from 'lucide-react';
 
 interface NavbarProps {
   user: UserProfile;
   onOpenAuth: () => void;
+  onSync?: () => void;
+  syncing?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ user, onOpenAuth }) => {
+export const Navbar: React.FC<NavbarProps> = ({ user, onOpenAuth, onSync, syncing }) => {
   return (
     <header style={{
       height: '64px',
@@ -42,6 +44,28 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenAuth }) => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <button
+          onClick={onSync}
+          disabled={syncing}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 14px',
+            borderRadius: '6px',
+            backgroundColor: '#e7f5ff',
+            color: '#1971c2',
+            border: '1px solid #74c0fc',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: syncing ? 'not-allowed' : 'pointer',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <RefreshCw size={16} style={{ animation: syncing ? 'spin 1s linear infinite' : 'none' }} />
+          <span>Sync Razorpay</span>
+        </button>
+
         <button
           onClick={onOpenAuth}
           style={{

@@ -66,6 +66,19 @@ services:
         aliases:
           - redpanda
 
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.4.5
+    container_name: revenueiq-redpanda-console-${STACK_NAME:-dev}
+    ports:
+      - "8082:8080"
+    environment:
+      - KAFKA_BROKERS=redpanda:29092
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      backend:
+
   # ─── CONSOLIDATED CORE GO ENGINE ───
 
   core-engine:

@@ -162,9 +162,21 @@ def seed_mongodb():
     db["promises"].insert_many(promises)
     print(f"Seeded {len(promises)} promise records into MongoDB.")
 
+    # Seed Disputes
+    db["disputes"].delete_many({})
+    disputes = [
+        {"id": "disp_RZP_001", "dispute_id": "disp_RZP_001", "payment_id": "pay_RZP_0012", "amount": 250000, "amount_paise": 250000, "currency": "INR", "reason_code": "FRAUDULENT", "reason": "Customer claims payment was unauthorized", "phase": "chargeback", "status": "under_review", "respond_by": int((now + timedelta(days=3)).timestamp()), "created_at": int((now - timedelta(days=2)).timestamp())},
+        {"id": "disp_RZP_002", "dispute_id": "disp_RZP_002", "payment_id": "pay_RZP_0024", "amount": 499000, "amount_paise": 499000, "currency": "INR", "reason_code": "SERVICES_NOT_PROVIDED", "reason": "Services promised were not delivered on time", "phase": "pre_arbitration", "status": "needs_response", "respond_by": int((now + timedelta(days=5)).timestamp()), "created_at": int((now - timedelta(days=1)).timestamp())},
+        {"id": "disp_RZP_003", "dispute_id": "disp_RZP_003", "payment_id": "pay_RZP_0036", "amount": 120000, "amount_paise": 120000, "currency": "INR", "reason_code": "DUPLICATE_CHARGE", "reason": "Billed twice for single transaction", "phase": "retrieval", "status": "won", "respond_by": int((now - timedelta(days=4)).timestamp()), "created_at": int((now - timedelta(days=7)).timestamp())},
+        {"id": "disp_RZP_004", "dispute_id": "disp_RZP_004", "payment_id": "pay_RZP_0048", "amount": 1000000, "amount_paise": 1000000, "currency": "INR", "reason_code": "CREDIT_NOT_PROCESSED", "reason": "Merchant agreed refund not processed", "phase": "chargeback", "status": "lost", "respond_by": int((now - timedelta(days=10)).timestamp()), "created_at": int((now - timedelta(days=14)).timestamp())},
+        {"id": "disp_RZP_005", "dispute_id": "disp_RZP_005", "payment_id": "pay_RZP_0060", "amount": 350000, "amount_paise": 350000, "currency": "INR", "reason_code": "UNRECOGNIZED", "reason": "Transaction name unrecognized on statement", "phase": "retrieval", "status": "open", "respond_by": int((now + timedelta(days=6)).timestamp()), "created_at": int((now - timedelta(hours=12)).timestamp())}
+    ]
+    db["disputes"].insert_many(disputes)
+    print(f"Seeded {len(disputes)} dispute records into MongoDB.")
+
     # Also seed mongodb_service_db database so mongo_service container can read it as well
     db2 = client["mongodb_service_db"]
-    for col in ["orders", "payments", "settlements", "failures", "workflows", "audit_logs", "promises"]:
+    for col in ["orders", "payments", "settlements", "failures", "workflows", "audit_logs", "promises", "disputes"]:
         db2[col].delete_many({})
         docs = list(db[col].find({}, {"_id": 0}))
         if docs:

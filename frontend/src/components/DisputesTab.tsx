@@ -18,7 +18,7 @@ export const DisputesTab: React.FC = () => {
       });
   }, []);
 
-  const totalDisputedPaise = disputes.reduce((acc, item) => acc + (item.amount || 0), 0);
+  const totalDisputedPaise = disputes.reduce((acc, item) => acc + (item.amount_paise || item.amount || 0), 0);
   const openDisputesCount = disputes.filter((d) => d.status === 'open' || d.status === 'under_review' || d.status === 'needs_response').length;
   const closedDisputesCount = disputes.filter((d) => d.status === 'won' || d.status === 'lost' || d.status === 'closed').length;
 

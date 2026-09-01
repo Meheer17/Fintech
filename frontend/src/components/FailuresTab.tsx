@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FailureRecord } from '../types';
 import { ChevronRight, Filter, Sparkles } from 'lucide-react';
-import { triggerDiagnosis } from '../lib/api';
+import { triggerDiagnosis, triggerWorkflow } from '../lib/api';
 
 interface FailuresTabProps {
   failures?: FailureRecord[];
@@ -12,6 +12,8 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
   const [selectedFailure, setSelectedFailure] = useState<FailureRecord | null>(safeFailures[0] || null);
   const [diagnosing, setDiagnosing] = useState(false);
   const [diagnosisResult, setDiagnosisResult] = useState<string | null>(null);
+  const [recoveryStep, setRecoveryStep] = useState<number>(0); // 0=idle, 1=diagnosing, 2=orchestrating, 3=done
+  const [recoveryResult, setRecoveryResult] = useState<any>(null);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -26,16 +28,29 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
     }
   };
 
-  const handleRunDiagnosis = async () => {
+  const handleExecuteRecovery = async () => {
     if (!selectedFailure) return;
-    setDiagnosing(true);
+    setRecoveryStep(1);
+    setDiagnosisResult(null);
+    setRecoveryResult(null);
+    
     try {
-      const res = await triggerDiagnosis(selectedFailure.payment_id, selectedFailure.category || 'BANK_DECLINE', 'Manual evaluation');
-      setDiagnosisResult(res.root_cause || res.reason || 'AI diagnosis completed.');
+      // Step 1: Diagnose
+      const diagRes = await triggerDiagnosis(selectedFailure.payment_id, selectedFailure.category || 'BANK_DECLINE', 'Manual evaluation');
+      setDiagnosisResult(diagRes.root_cause || diagRes.reason || 'AI diagnosis completed');
+      
+      // Step 2: Orchestrate (creates payment link)
+      setRecoveryStep(2);
+      const orchRes = await triggerWorkflow(
+        selectedFailure.payment_id,
+        0,
+        selectedFailure.amount_paise || 0
+      );
+      setRecoveryResult(orchRes);
+      setRecoveryStep(3);
     } catch (e: any) {
-      setDiagnosisResult(`Diagnosis error: ${e.message}`);
-    } finally {
-      setDiagnosing(false);
+      setRecoveryStep(0);
+      setDiagnosisResult('Recovery error: ' + e.message);
     }
   };
 
@@ -96,6 +111,8 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
                     onClick={() => {
                       setSelectedFailure(f);
                       setDiagnosisResult(null);
+                      setRecoveryStep(0);
+                      setRecoveryResult(null);
                     }}
                     style={{
                       borderBottom: '1px solid #f1f3f5',
@@ -158,26 +175,52 @@ export const FailuresTab: React.FC<FailuresTabProps> = ({ failures = [] }) => {
             </div>
           </div>
 
-          <button
-            onClick={handleRunDiagnosis}
-            disabled={diagnosing}
-            style={{
-              padding: '10px 16px',
-              backgroundColor: '#4263eb',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontWeight: 600,
-              fontSize: '13px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}
-          >
-            <Sparkles size={16} /> {diagnosing ? 'Running AI Diagnosis...' : 'Execute Live AI Diagnosis'}
-          </button>
+          {recoveryStep === 0 && (
+            <button
+              onClick={handleExecuteRecovery}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#4263eb',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <Sparkles size={16} /> 🚀 Execute AI Recovery
+            </button>
+          )}
+
+          {recoveryStep > 0 && recoveryStep < 3 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: '#e7f5ff', borderRadius: '6px', color: '#1971c2', fontSize: '13px', fontWeight: 500 }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#1971c2', animation: 'pulse 1.5s infinite' }} />
+              {recoveryStep === 1 ? 'Analyzing failure with AI...' : 'Creating recovery workflow & payment link...'}
+            </div>
+          )}
+
+          {recoveryStep === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', backgroundColor: '#ebfbee', borderRadius: '6px', border: '1px solid #b2f2bb' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2b8a3e', fontSize: '14px', fontWeight: 600 }}>
+                <span>✅ Recovery triggered!</span>
+              </div>
+              <div style={{ fontSize: '13px', color: '#2b8a3e' }}>
+                <strong>Action:</strong> {recoveryResult?.action_taken || 'CREATED PAYMENT LINK'}<br />
+                <strong>Guardrails verified:</strong> {recoveryResult?.guardrails_passed ? 'Yes' : 'N/A'}
+              </div>
+              {recoveryResult?.payment_link_url && (
+                <a href={recoveryResult.payment_link_url} target="_blank" rel="noopener noreferrer"
+                   style={{ display: 'block', textAlign: 'center', padding: '10px 16px', backgroundColor: '#2b8a3e', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontWeight: 600, fontSize: '13px' }}>
+                  Open Razorpay Payment Link →
+                </a>
+              )}
+            </div>
+          )}
 
           <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
