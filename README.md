@@ -37,6 +37,12 @@ GitHub Repository: [github.com/Meheer17/fintech](https://github.com/Meheer17/fin
 
 ## Architecture & System Design
 
+### High-Level Architecture Overview
+![System Architecture Overview](images/image.png)
+
+### Detailed Microservice Mesh Diagram
+![Detailed Microservice Architecture](images/arch.png)
+
 ### Polyglot gRPC Microservice Mesh
 RevenueIQ combines high-concurrency compiled microservices in **Go** with specialized AI/ML workflows in **Python**:
 - **Go Services**: `webhook-receiver`, `checkout-tracker`, `notification-service`, `mongo-service`, `redis-service`, `audit-service`, `voice-recovery-worker`, `dashboard-api`.
@@ -51,6 +57,12 @@ RevenueIQ combines high-concurrency compiled microservices in **Go** with specia
 - **MongoDB Database**: Serves as the primary document store for payment events, recovery execution states, settlement ledgers, and raw webhook payloads with flexible schema evolution.
 - **Centralized Audit Service (`audit-service`)**: Dedicated Go gRPC microservice storing immutable, timestamped audit logs for every system action, recovery dispatch, AI prompt evaluation, and settlement discrepancy flag.
 - **TRAI & Regulatory Compliance**: Hardcoded guardrails enforce DND contact windows (9 AM - 9 PM IST), max contact frequency limits, and recovery cost ratio caps.
+
+---
+
+## AI Gateway & Master Copilot
+
+![AI Gateway Copilot](images/ai.png)
 
 ---
 
@@ -140,27 +152,6 @@ RevenueIQ combines high-concurrency compiled microservices in **Go** with specia
 - **Three-Way Settlement Matcher**: Reconciles Merchant Ledger vs. Razorpay Gateway vs. Bank Settlements (MDR & GST aware).
 - **Forward Cash Forecasting**: 7-day predictive cash flow model for working capital management.
 - **AI Copilot & Master Agent**: Natural language querying for dispute tracking, settlement queries, and automated payment link creation.
-
----
-
-## High-Level Architecture
-
-```
-                    ┌───────────────────────────────┐
-                    │    Razorpay Webhooks / REST   │
-                    └───────────────┬───────────────┘
-                                    │
-                  ┌─────────────────▼─────────────────┐
-                  │   Webhook Receiver & Dashboard    │ (Go HTTP/gRPC)
-                  └─────────────────┬─────────────────┘
-                                    │ (Redpanda Kafka Events)
-          ┌─────────────────────────┼─────────────────────────┐
-          │                         │                         │
-┌─────────▼─────────┐     ┌─────────▼─────────┐     ┌─────────▼─────────┐
-│ Failure Detector  │     │ Recovery Engine   │     │ Reconciliation    │
-│   (Python AI)     │     │   (Python DAG)    │     │   (Python Match)  │
-└───────────────────┘     └───────────────────┘     └───────────────────┘
-```
 
 ---
 
